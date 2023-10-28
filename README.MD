@@ -28,7 +28,7 @@
 - **Pacejnt nie będzie mógł być umówiony na dwóch wizytach jednocześnie**
 
 
-**Harmonogram pracy**
+## Harmonogram pracy
 
 1. _2023-11-18_ - ***Stworzenie formularza i mechanizmu zapisącego do bazy danych i początek tworzenia mechanizmu wysyłania maili***
 1. _2023-11-19_ - ***Kontynuacja tworzenia mechanizmu wysyłania maili***
