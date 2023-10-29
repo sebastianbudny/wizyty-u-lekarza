@@ -18,14 +18,14 @@
         - _Uwagi dla lekarza_
     - Po wybraniu daty i godziny na liście pokażą się tylko lekarze którzy nie mają umówionej wizyty
 
-- **Na podstronie ze sztuczną bramką e-mail będą pojawiały się "wysłane" e-maile do klientów kilka godzin przed wizytą**
+- **Na podstronie ze sztuczną bramką e-mail będą pojawiały się "wysłane" e-maile do klientów (pacjentów) kilka godzin przed wizytą**
     - Mechanizm wysyłania e-maili na podstronę po stronie backendu
 
 - **Anulowanie umówionej wizyty**
 
 - **Zmiana terminu umówinej wizyty**
 
-- **Pacejnt nie będzie mógł być umówiony na dwóch wizytach jednocześnie**
+- **Pacjent nie będzie mógł być umówiony na dwóch wizytach jednocześnie**
 
 
 ## Harmonogram pracy
