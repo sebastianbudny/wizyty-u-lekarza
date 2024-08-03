@@ -1,0 +1,64 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: rgb(0, 0, 0);
+}
+
+.App-link {
+  color: #000000;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Styl dla napisu w nagłówku */
+.navbar .navbar-brand {
+  margin: 0 auto;
+  color: #000000 !important; /* Kolor tekstu na czarny */
+}
+
+/* Styl dla linków nawigacyjnych */
+.navbar-nav .nav-link {
+  color: #f8f6f6 !important; /* Kolor tekstu na czarny */
+}
+
+.navbar-nav .nav-link:hover {
+  color: #7bc612 !important; /* Zmiana koloru tekstu przy najechaniu */
+}
+
+/* Dodatkowe style dla poprawy wyświetlania zakładek */
+.navbar-nav {
+  display: flex;
+  justify-content: space-around;
+}
+
+.tab-content {
+  margin-top: 20px;
+}
+
