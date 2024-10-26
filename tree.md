@@ -1,0 +1,43 @@
+- **backend**
+    - **models**
+        - doctorModel.js
+        - visitModel.js
+    - **routes**
+        - doctorRoutes.js
+        - visitsRoute.js
+    - config.js
+    - index.js
+    - package-lock.json
+    - package.json
+- **frontend**
+    - **public**
+        - favicon.ico
+        - index.html
+        - logo192.png
+        - logo512.png
+        - manifest.json
+        - robots.txt
+    - **src**
+        - **components**
+            - AppointmentForm.js
+            - DoctorForm.js
+            - Footer.js
+            - Header.js
+        - **pages**
+            - AddAppointment.js
+            - DeleteAppointment.js
+            - DeleteDoctor.js
+            - Doctors.js
+            - Home.js
+            - RegisterDoctor.js
+            - UpdateAppointment.js
+            - UpdateDoctor.js
+        - App.js
+        - index.css
+        - index.js
+    - package-lock.json
+    - package.json
+    - README.md
+- README.MD
+
+- tree.md
