@@ -36,6 +36,7 @@
 - **Dodawana wizyta musi mieć wprowadzone: Datę i godzinę wizyty, cel, lekarza i pacjenta**
 - **Walidacja, która pozwoli dodać wizytę, tylko jeśli lekarz istnieje**
 - **Walidacja, która nie pozwoli dodać drugiej takiej samej wizyty**
+- ** **
 
 
 
