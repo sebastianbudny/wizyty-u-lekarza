@@ -1,6 +1,6 @@
 // filepath: backend/controllers/requestController.js
 import User from '../models/userModel.js';
-import nodemailer from 'nodemailer';
+import Email from '../models/emailModel.js';
 import crypto from 'crypto';
 
 export const getRequests = async (req, res) => {
@@ -28,53 +28,25 @@ export const handleRequest = async (req, res) => {
       user.temporaryPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 minut
       user.isActive = true;
 
-      // Wysyłanie e-maila do użytkownika
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
-      });
-
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
+      // Wysyłanie wiadomości do wirtualnej skrzynki pocztowej
+      const emailMessage = new Email({
         to: user.email,
+        from: process.env.ADMIN_EMAIL,
         subject: 'Akceptacja wniosku o rejestrację',
-        text: `Twój wniosek o rejestrację został zaakceptowany. Tymczasowe hasło: ${temporaryPassword}. Ważne przez 10 minut.`,
-      };
-
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.log(error);
-        } else {
-          console.log('Email sent: ' + info.response);
-        }
+        body: `Twój wniosek o rejestrację został zaakceptowany. Tymczasowe hasło: ${temporaryPassword}. Ważne przez 10 minut.`,
       });
+
+      await emailMessage.save();
     } else if (action === 'reject') {
-      // Wysyłanie e-maila do użytkownika
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
-      });
-
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
+      // Wysyłanie wiadomości do wirtualnej skrzynki pocztowej
+      const emailMessage = new Email({
         to: user.email,
+        from: process.env.ADMIN_EMAIL,
         subject: 'Odrzucenie wniosku o rejestrację',
-        text: 'Twój wniosek o rejestrację został odrzucony.',
-      };
-
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.log(error);
-        } else {
-          console.log('Email sent: ' + info.response);
-        }
+        body: 'Twój wniosek o rejestrację został odrzucony.',
       });
+
+      await emailMessage.save();
 
       await user.remove();
     }

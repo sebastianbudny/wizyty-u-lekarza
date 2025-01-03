@@ -1,12 +1,18 @@
+// filepath: frontend/src/pages/Login.js
 import React from 'react';
+import { Container, Row, Col } from 'react-bootstrap';
 import LoginForm from '../components/LoginForm';
 
 const Login = ({ onLogin }) => {
   return (
-    <div>
-      <h2>Logowanie</h2>
-      <LoginForm onLogin={onLogin} />
-    </div>
+    <Container>
+      <Row>
+        <Col md={{ span: 6, offset: 3 }}>
+          <h2>Logowanie</h2>
+          <LoginForm onLogin={onLogin} />
+        </Col>
+      </Row>
+    </Container>
   );
 };
 

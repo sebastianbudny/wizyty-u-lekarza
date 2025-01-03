@@ -15,9 +15,9 @@ export const createEmail = async (req, res) => {
 
   try {
     const email = new Email({ to, from, subject, body });
-    const savedEmail = await email.save();
-    res.status(201).json(savedEmail);
+    await email.save();
+    res.status(201).json(email);
   } catch (error) {
-    res.status(400).json({ message: 'Nieprawidłowe dane e-maila' });
+    res.status(500).json({ message: 'Błąd serwera' });
   }
 };

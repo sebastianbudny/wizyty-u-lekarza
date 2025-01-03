@@ -1,7 +1,7 @@
 // filepath: backend/controllers/userController.js
 import User from '../models/userModel.js';
 import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
+import Email from '../models/emailModel.js';
 import crypto from 'crypto';
 
 const generateToken = (id) => {
@@ -21,29 +21,15 @@ export const registerUser = async (req, res) => {
   const user = await User.create({ username, email, password });
 
   if (user) {
-    // Wysyłanie e-maila do administratora
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
+    // Wysyłanie wiadomości do wirtualnej skrzynki pocztowej
+    const emailMessage = new Email({
       to: process.env.ADMIN_EMAIL,
+      from: email,
       subject: 'Nowa rejestracja użytkownika',
-      text: `Nowy użytkownik zarejestrował się w systemie. Username: ${username}, Email: ${email}`,
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log('Email sent: ' + info.response);
-      }
+      body: `Nowy użytkownik zarejestrował się w systemie. Username: ${username}, Email: ${email}`,
     });
+
+    await emailMessage.save();
 
     res.status(201).json({
       _id: user._id,
@@ -57,9 +43,11 @@ export const registerUser = async (req, res) => {
 };
 
 export const authUser = async (req, res) => {
-  const { email, password } = req.body;
+  const { emailOrUsername, password } = req.body;
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({
+    $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
+  });
 
   if (user && (await user.matchPassword(password))) {
     res.json({
@@ -69,7 +57,7 @@ export const authUser = async (req, res) => {
       token: generateToken(user._id),
     });
   } else {
-    res.status(401).json({ message: 'Nieprawidłowy email lub hasło' });
+    res.status(401).json({ message: 'Nieprawidłowy email/login lub hasło' });
   }
 };
 
@@ -163,30 +151,37 @@ export const resetPassword = async (req, res) => {
   user.temporaryPassword = temporaryPassword;
   user.temporaryPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 minut
 
-  // Wysyłanie e-maila do użytkownika
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
-
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: user.email,
+  // Wysyłanie wiadomości do wirtualnej skrzynki pocztowej
+  const emailMessage = new Email({
+    to: email,
+    from: process.env.ADMIN_EMAIL,
     subject: 'Resetowanie hasła',
-    text: `Twoje tymczasowe hasło: ${temporaryPassword}. Ważne przez 10 minut.`,
-  };
-
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log('Email sent: ' + info.response);
-    }
+    body: `Twoje tymczasowe hasło: ${temporaryPassword}. Ważne przez 10 minut.`,
   });
+
+  await emailMessage.save();
 
   await user.save();
   res.json({ message: 'Tymczasowe hasło zostało wysłane na e-mail' });
+};
+
+export const changePassword = async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    return res.status(404).json({ message: 'Użytkownik nie znaleziony' });
+  }
+
+  const isMatch = await user.matchPassword(oldPassword);
+
+  if (!isMatch) {
+    return res.status(400).json({ message: 'Stare hasło jest nieprawidłowe' });
+  }
+
+  user.password = newPassword;
+  await user.save();
+
+  res.json({ message: 'Hasło zostało zmienione' });
 };

@@ -22,4 +22,4 @@ const UserPanel = () => {
   );
 };
 
-export default UserPanel;s
+export default UserPanel;

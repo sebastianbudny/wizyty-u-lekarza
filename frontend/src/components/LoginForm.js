@@ -1,8 +1,9 @@
+// filepath: frontend/src/components/LoginForm.js
 import React, { useState } from 'react';
 import { Form, Button, Container } from 'react-bootstrap';
 
 const LoginForm = ({ onLogin }) => {
-  const [email, setEmail] = useState('');
+  const [emailOrUsername, setEmailOrUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = async (e) => {
@@ -13,10 +14,14 @@ const LoginForm = ({ onLogin }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ emailOrUsername, password }),
       });
       const data = await response.json();
-      onLogin(data);
+      if (response.ok) {
+        onLogin(data);
+      } else {
+        alert(data.message);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -25,13 +30,13 @@ const LoginForm = ({ onLogin }) => {
   return (
     <Container>
       <Form onSubmit={handleSubmit}>
-        <Form.Group controlId="formEmail">
-          <Form.Label>Email</Form.Label>
+        <Form.Group controlId="formEmailOrUsername">
+          <Form.Label>Email lub Login</Form.Label>
           <Form.Control
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Wprowadź email"
+            type="text"
+            value={emailOrUsername}
+            onChange={(e) => setEmailOrUsername(e.target.value)}
+            placeholder="Wprowadź email lub login"
           />
         </Form.Group>
         <Form.Group controlId="formPassword">
