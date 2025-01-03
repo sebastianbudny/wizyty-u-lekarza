@@ -3,6 +3,9 @@ import { PORT, mongoDBURL } from "./config.js";
 import mongoose from 'mongoose';
 import visitsRoute from './routes/visitsRoute.js';
 import doctorRoutes from './routes/doctorRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import emailRoutes from './routes/emailRoutes.js';
+import requestRoutes from './routes/requestRoutes.js';
 import cors from 'cors';
 
 const app = express();
@@ -27,6 +30,9 @@ app.get('/', (request, response) => {
 
 app.use('/api/visits', visitsRoute);
 app.use('/api/doctors', doctorRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/emails', emailRoutes);
+app.use('/api/requests', requestRoutes);
 
 mongoose
     .connect(mongoDBURL)

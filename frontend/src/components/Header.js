@@ -1,3 +1,4 @@
+// filepath: frontend/src/components/Header.js
 import React from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
@@ -18,6 +19,10 @@ const Header = () => {
             <Nav.Link as={Link} to="/add-appointment">Dodanie Wizyty</Nav.Link>
             <Nav.Link as={Link} to="/update-appointment">Aktualizacja Wizyty</Nav.Link>
             <Nav.Link as={Link} to="/delete-appointment">Usunięcie Wizyty</Nav.Link>
+            <Nav.Link as={Link} to="/login">Logowanie</Nav.Link>
+            <Nav.Link as={Link} to="/register">Rejestracja</Nav.Link>
+            <Nav.Link as={Link} to="/requests">Wnioski</Nav.Link>
+            <Nav.Link as={Link} to="/reset-password">Resetowanie Hasła</Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
