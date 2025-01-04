@@ -34,12 +34,9 @@ const App = () => {
 
   useEffect(() => {
     const mailboxOpened = localStorage.getItem('mailboxOpened');
-    console.log('Checking if mailbox was opened:', mailboxOpened);
     if (!mailboxOpened) {
-      console.log('Opening mailbox...');
       const newWindow = window.open('/mailbox', '_blank');
       if (newWindow) {
-        console.log('Mailbox opened successfully');
         localStorage.setItem('mailboxOpened', 'true');
       } else {
         console.log('Failed to open mailbox');

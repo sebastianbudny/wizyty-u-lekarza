@@ -1,4 +1,3 @@
-// filepath: backend/test/addTestUsers.js
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { mongoDBURL } from '../config.js';
@@ -20,10 +19,12 @@ const addTestUsers = async () => {
     const rejestratorExists = await User.findOne({ email: 'user@example.com' });
 
     if (!adminExists) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash('admin', salt);
       const admin = new User({
         username: 'admin',
         email: 'admin@example.com',
-        password: bcrypt.hashSync('admin', 10),
+        password: hashedPassword,
         role: 'admin',
         isActive: true,
       });
@@ -32,10 +33,12 @@ const addTestUsers = async () => {
     }
 
     if (!rejestratorExists) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash('user', salt);
       const rejestrator = new User({
         username: 'user',
         email: 'user@example.com',
-        password: bcrypt.hashSync('user', 10),
+        password: hashedPassword,
         role: 'rejestrator',
         isActive: true,
       });

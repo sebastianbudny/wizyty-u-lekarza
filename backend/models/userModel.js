@@ -1,4 +1,3 @@
-// filepath: backend/models/userModel.js
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
@@ -12,17 +11,26 @@ const userSchema = new mongoose.Schema({
   temporaryPasswordExpires: { type: Date },
 }, { timestamps: true });
 
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
+userSchema.pre('save', function(next) {
+  const user = this;
+  if (!user.isModified('password')) {
     return next();
   }
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
+  bcrypt.genSalt(10, function(err, salt) {
+    if (err) return next(err);
+    bcrypt.hash(user.password, salt, function(err, hash) {
+      if (err) return next(err);
+      user.password = hash;
+      next();
+    });
+  });
 });
 
-userSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+userSchema.methods.matchPassword = function(enteredPassword, callback) {
+  bcrypt.compare(enteredPassword, this.password, function(err, isMatch) {
+    if (err) return callback(err);
+    callback(null, isMatch);
+  });
 };
 
 const User = mongoose.model('User', userSchema);
