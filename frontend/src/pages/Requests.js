@@ -23,12 +23,12 @@ const Requests = () => {
 
   const handleRequest = (userId, action) => {
     // Send POST request to backend to handle request
-    fetch('http://localhost:5555/api/requests', {
-      method: 'POST',
+    fetch(`http://localhost:5555/api/requests/${userId}`, {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ userId, action }),
+      body: JSON.stringify({ status: action }),
     }).then(response => response.json())
       .then(data => {
         setRequests(requests.filter(request => request._id !== userId));
@@ -52,8 +52,8 @@ const Requests = () => {
               <td>{request.username}</td>
               <td>{request.email}</td>
               <td>
-                <Button variant="success" onClick={() => handleRequest(request._id, 'accept')}>Akceptuj</Button>
-                <Button variant="danger" onClick={() => handleRequest(request._id, 'reject')}>Odrzuć</Button>
+                <Button variant="success" onClick={() => handleRequest(request._id, 'approved')}>Akceptuj</Button>
+                <Button variant="danger" onClick={() => handleRequest(request._id, 'rejected')}>Odrzuć</Button>
               </td>
             </tr>
           ))}

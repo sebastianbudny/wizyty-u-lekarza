@@ -1,16 +1,16 @@
 import React from 'react';
 import { Container } from 'react-bootstrap';
-import AppointmentForm from '../components/AppointmentForm';
+import VisitForm from '../components/VisitForm';
 
-const AddAppointment = () => {
-  const handleAdd = (appointment) => {
-    // Send POST request to backend to add appointment
+const AddVisit = () => {
+  const handleAdd = (visit) => {
+    // Send POST request to backend to add visit
     fetch('http://localhost:5555/api/visits', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(appointment),
+      body: JSON.stringify(visit),
     }).then(response => response.json())
       .then(data => console.log(data));
   };
@@ -18,9 +18,9 @@ const AddAppointment = () => {
   return (
     <Container>
       <h2>Dodanie Wizyty</h2>
-      <AppointmentForm onSubmit={handleAdd} />
+      <VisitForm onSubmit={handleAdd} />
     </Container>
   );
 };
 
-export default AddAppointment;
+export default AddVisit;

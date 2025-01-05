@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Container, Form, Button } from 'react-bootstrap';
 
-const DeleteAppointment = () => {
-  const [appointmentId, setAppointmentId] = useState('');
+const DeleteVisit = () => {
+  const [visitId, setVisitId] = useState('');
 
   const handleDelete = () => {
-    // Send DELETE request to backend to delete appointment
-    fetch(`http://localhost:5555/api/visits/${appointmentId}`, {
+    // Send DELETE request to backend to delete visit
+    fetch(`http://localhost:5555/api/visits/${visitId}`, {
       method: 'DELETE',
     }).then(response => response.json())
       .then(data => console.log(data));
@@ -16,12 +16,12 @@ const DeleteAppointment = () => {
     <Container>
       <h2>Usunięcie Wizyty</h2>
       <Form onSubmit={(e) => { e.preventDefault(); handleDelete(); }}>
-        <Form.Group controlId="formAppointmentId">
+        <Form.Group controlId="formVisitId">
           <Form.Label>ID Wizyty</Form.Label>
           <Form.Control
             type="text"
-            value={appointmentId}
-            onChange={(e) => setAppointmentId(e.target.value)}
+            value={visitId}
+            onChange={(e) => setVisitId(e.target.value)}
             placeholder="Wprowadź ID wizyty"
           />
         </Form.Group>
@@ -33,4 +33,4 @@ const DeleteAppointment = () => {
   );
 };
 
-export default DeleteAppointment;
+export default DeleteVisit;

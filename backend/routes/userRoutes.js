@@ -45,7 +45,7 @@ router.post('/login', async (req, res) => {
     $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
   });
 
-  if (user) {
+  if (user && user.isActive && !user.blocked) {
     user.matchPassword(password, function(err, isMatch) {
       if (err) {
         console.log('Error comparing passwords:', err);
@@ -56,6 +56,7 @@ router.post('/login', async (req, res) => {
           _id: user._id,
           username: user.username,
           email: user.email,
+          role: user.role,
         });
       } else {
         console.log('Invalid email/login or password');
@@ -110,38 +111,40 @@ router.get('/', async (req, res) => {
   res.json(users);
 });
 
-router.delete('/:id', async (req, res) => {
+// Zablokowanie użytkownika
+router.put('/block/:id', async (req, res) => {
   const user = await User.findById(req.params.id);
 
   if (user) {
-    await user.remove();
-    res.json({ message: 'Użytkownik usunięty' });
-  } else {
-    res.status(404).json({ message: 'Użytkownik nie znaleziony' });
-  }
-});
-
-router.put('/:id', async (req, res) => {
-  const user = await User.findById(req.params.id);
-
-  if (user) {
-    user.username = req.body.username || user.username;
-    user.email = req.body.email || user.email;
-    user.role = req.body.role || user.role;
-    user.isActive = req.body.isActive !== undefined ? req.body.isActive : user.isActive;
-
-    if (req.body.password) {
-      user.password = req.body.password;
-    }
-
+    user.blocked = true;
     const updatedUser = await user.save();
-
     res.json({
       _id: updatedUser._id,
       username: updatedUser.username,
       email: updatedUser.email,
       role: updatedUser.role,
       isActive: updatedUser.isActive,
+      blocked: updatedUser.blocked,
+    });
+  } else {
+    res.status(404).json({ message: 'Użytkownik nie znaleziony' });
+  }
+});
+
+// Odblokowanie użytkownika
+router.put('/unblock/:id', async (req, res) => {
+  const user = await User.findById(req.params.id);
+
+  if (user) {
+    user.blocked = false;
+    const updatedUser = await user.save();
+    res.json({
+      _id: updatedUser._id,
+      username: updatedUser.username,
+      email: updatedUser.email,
+      role: updatedUser.role,
+      isActive: updatedUser.isActive,
+      blocked: updatedUser.blocked,
     });
   } else {
     res.status(404).json({ message: 'Użytkownik nie znaleziony' });
@@ -195,6 +198,31 @@ router.post('/change-password', async (req, res) => {
       res.status(400).json({ message: 'Stare hasło jest nieprawidłowe' });
     }
   });
+});
+
+// Dodanie użytkownika
+router.post('/add', async (req, res) => {
+  const { username, email, password, role } = req.body;
+
+  const userExists = await User.findOne({ email });
+
+  if (userExists) {
+    res.status(400).json({ message: 'Użytkownik już istnieje' });
+    return;
+  }
+
+  const user = await User.create({ username, email, password, role });
+
+  if (user) {
+    res.status(201).json({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    });
+  } else {
+    res.status(400).json({ message: 'Nieprawidłowe dane użytkownika' });
+  }
 });
 
 export default router;

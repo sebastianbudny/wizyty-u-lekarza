@@ -1,36 +1,53 @@
-import React, { useEffect, useState } from 'react';
-import { Container, Card, Row, Col } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Container, Table } from 'react-bootstrap';
 
 const Home = () => {
-  const [appointments, setAppointments] = useState([]);
+  const [visits, setVisits] = useState([]);
 
   useEffect(() => {
-    // Fetch appointments from backend
-    fetch('http://localhost:5555/api/visits')
-      .then(response => response.json())
-      .then(data => setAppointments(data.data));
+    fetchVisits();
   }, []);
+
+  const fetchVisits = async () => {
+    try {
+      const response = await fetch('/api/visits');
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        setVisits(data);
+      } else {
+        setVisits([]);
+      }
+    } catch (error) {
+      console.error('Error fetching visits:', error);
+      setVisits([]);
+    }
+  };
 
   return (
     <Container>
-      <h2 className="my-4">Wszystkie Wizyty</h2>
-      <Row>
-        {appointments.map((appointment, index) => (
-          <Col key={index} sm={12} md={6} lg={4} className="mb-4">
-            <Card>
-              <Card.Body>
-                <Card.Title>{appointment.patient}</Card.Title>
-                <Card.Text>
-                  Data: {appointment.visitDate}<br />
-                  Godzina: {appointment.visitTime}<br />
-                  Lekarz: {appointment.doctor}<br />
-                  Cel: {appointment.purpose}
-                </Card.Text>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+      <h2>Wszystkie Wizyty</h2>
+      <Table striped bordered hover className="mt-4">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Godzina</th>
+            <th>Lekarz</th>
+            <th>Pacjent</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {visits.map((visit) => (
+            <tr key={visit._id}>
+              <td>{new Date(visit.visitDate).toLocaleDateString()}</td>
+              <td>{visit.visitTime}</td>
+              <td>{visit.doctor.doctorName}</td>
+              <td>{visit.patient}</td>
+              <td>{visit.status}</td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
     </Container>
   );
 };

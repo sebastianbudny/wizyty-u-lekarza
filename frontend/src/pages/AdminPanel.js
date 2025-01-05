@@ -1,8 +1,7 @@
-// filepath: frontend/src/pages/AdminPanel.js
 import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import Requests from './Requests';
-import Users from './Users';
+import UserManagement from './UserManagement';
 
 const AdminPanel = () => {
   return (
@@ -11,7 +10,7 @@ const AdminPanel = () => {
         <Col>
           <h2>Panel Administratora</h2>
           <Requests />
-          <Users />
+          <UserManagement />
         </Col>
       </Row>
     </Container>
