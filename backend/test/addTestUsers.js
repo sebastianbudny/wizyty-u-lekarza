@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
 import { mongoDBURL } from '../config.js';
 import User from '../models/userModel.js';
 
@@ -19,12 +18,10 @@ const addTestUsers = async () => {
     const rejestratorExists = await User.findOne({ email: 'user@example.com' });
 
     if (!adminExists) {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash('admin', salt);
       const admin = new User({
         username: 'admin',
         email: 'admin@example.com',
-        password: hashedPassword,
+        password: 'admin',
         role: 'admin',
         isActive: true,
       });
@@ -33,12 +30,10 @@ const addTestUsers = async () => {
     }
 
     if (!rejestratorExists) {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash('user', salt);
       const rejestrator = new User({
         username: 'user',
         email: 'user@example.com',
-        password: hashedPassword,
+        password: 'user',
         role: 'rejestrator',
         isActive: true,
       });

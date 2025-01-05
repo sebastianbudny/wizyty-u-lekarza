@@ -1,4 +1,3 @@
-// filepath: frontend/src/pages/Login.js
 import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import LoginForm from '../components/LoginForm';

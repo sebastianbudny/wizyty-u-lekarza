@@ -1,4 +1,3 @@
-// filepath: /c:/Inzynier/wizyty-u-lekarza/frontend/src/App.js
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -26,6 +25,10 @@ const App = () => {
 
   const handleLogin = (userData) => {
     setUser(userData);
+  };
+
+  const handleLogout = () => {
+    setUser(null);
   };
 
   const ProtectedRoute = ({ children }) => {
@@ -58,11 +61,11 @@ const App = () => {
   return (
     <Router>
       <div>
-        <Header user={user} />
+        <Header user={user} onLogout={handleLogout} />
         <Routes>
-          <Route path="/login" element={<Login onLogin={handleLogin} />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/login" element={user ? <Navigate to="/home" /> : <Login onLogin={handleLogin} />} />
+          <Route path="/register" element={user ? <Navigate to="/home" /> : <Register />} />
+          <Route path="/reset-password" element={user ? <Navigate to="/home" /> : <ResetPassword />} />
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/doctors" element={<ProtectedRoute><Doctors /></ProtectedRoute>} />

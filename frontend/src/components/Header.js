@@ -1,9 +1,8 @@
-// filepath: frontend/src/components/Header.js
 import React from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
-const Header = ({ user }) => {
+const Header = ({ user, onLogout }) => {
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
       <Container>
@@ -23,6 +22,7 @@ const Header = ({ user }) => {
                 <Nav.Link as={Link} to="/delete-appointment">Usunięcie Wizyty</Nav.Link>
                 <Nav.Link as={Link} to="/requests">Wnioski</Nav.Link>
                 <Nav.Link as={Link} to="/change-password">Zmiana Hasła</Nav.Link>
+                <Nav.Link as={Link} to="/" onClick={onLogout}>Wyloguj się</Nav.Link>
               </>
             )}
           </Nav>
