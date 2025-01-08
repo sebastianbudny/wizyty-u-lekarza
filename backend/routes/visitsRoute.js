@@ -8,7 +8,7 @@ import mongoose from 'mongoose';
 const router = express.Router();
 
 function isValidDate(date) {
-    return moment(date, 'YYYY-MM-DD', true).isValid() && moment(date).isSameOrAfter(moment().format('YYYY-MM-DD'));
+    return moment(date, 'YYYY-MM-DD', true).isValid();
 }
 
 // Route for Save a new Visit
@@ -25,7 +25,7 @@ router.post('/', async (request, response) => {
 
         if (!isValidDate(visitDate)) {
             return response.status(400).send({
-                message: 'Nieprawidłowa data, data musi być podana w formacie YYYY-MM-DD oraz nie może być datą z przeszłości'
+                message: 'Nieprawidłowa data, data musi być podana w formacie YYYY-MM-DD'
             });
         }
 
@@ -130,7 +130,7 @@ router.put('/:_id', async (request, response) => {
         // Validate visitDate
         if (!isValidDate(visitDate)) {
             return response.status(400).send({
-                message: 'Nieprawidłowa data, data musi być podana w formacie YYYY-MM-DD oraz nie może być datą z przeszłości'
+                message: 'Nieprawidłowa data, data musi być podana w formacie YYYY-MM-DD'
             });
         }
 

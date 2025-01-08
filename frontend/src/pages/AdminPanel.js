@@ -1,6 +1,5 @@
 import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import Requests from './Requests';
 import UserManagement from './UserManagement';
 
 const AdminPanel = () => {

@@ -1,33 +1,45 @@
-import React, { useEffect, useState } from 'react';
-import { Container, Card, Row, Col } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Container, Table, Alert } from 'react-bootstrap';
 
 const Doctors = () => {
   const [doctors, setDoctors] = useState([]);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    // Fetch doctors from backend
-    fetch('http://localhost:5555/api/doctors')
-      .then(response => response.json())
-      .then(data => setDoctors(data.data));
+    fetchDoctors();
   }, []);
+
+  const fetchDoctors = async () => {
+    try {
+      const response = await fetch('/api/doctors');
+      const data = await response.json();
+      setDoctors(data.data || []);
+    } catch (error) {
+      console.error('Error fetching doctors:', error);
+      setErrorMessage('Wystąpił błąd podczas pobierania listy lekarzy');
+    }
+  };
 
   return (
     <Container>
-      <h2 className="my-4">Wszyscy Lekarze</h2>
-      <Row>
-        {doctors.map((doctor, index) => (
-          <Col key={index} sm={12} md={6} lg={4} className="mb-4">
-            <Card>
-              <Card.Body>
-                <Card.Title>{doctor.doctorName}</Card.Title>
-                <Card.Text>
-                  Specjalizacja: {doctor.specialization}
-                </Card.Text>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+      <h2>Lista Lekarzy</h2>
+      {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
+      <Table striped bordered hover className="mt-4">
+        <thead>
+          <tr>
+            <th>Imię i Nazwisko</th>
+            <th>Specjalizacja</th>
+          </tr>
+        </thead>
+        <tbody>
+          {doctors.map((doctor) => (
+            <tr key={doctor._id}>
+              <td>{doctor.doctorName}</td>
+              <td>{doctor.specialization}</td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
     </Container>
   );
 };

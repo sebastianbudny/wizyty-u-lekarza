@@ -1,90 +1,74 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { Container } from 'react-bootstrap';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import Home from './pages/Home';
+import UserHome from './pages/UserHome';
+import AdminHome from './pages/AdminHome';
+import AddVisit from './pages/AddVisit';
+import UpdateVisit from './pages/UpdateVisit';
+import DeleteVisit from './pages/DeleteVisit';
 import Doctors from './pages/Doctors';
 import RegisterDoctor from './pages/RegisterDoctor';
 import UpdateDoctor from './pages/UpdateDoctor';
 import DeleteDoctor from './pages/DeleteDoctor';
-import AddVisit from './pages/AddVisit';
-import UpdateVisit from './pages/UpdateVisit';
-import DeleteVisit from './pages/DeleteVisit';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import ResetPassword from './pages/ResetPassword';
-import Mailbox from './pages/Mailbox';
-import Requests from './pages/Requests';
-import UserPanel from './pages/UserPanel';
-import AdminPanel from './pages/AdminPanel';
 import ChangePassword from './pages/ChangePassword';
+import ResetPassword from './pages/ResetPassword';
 import UserManagement from './pages/UserManagement';
+import UserPanel from './pages/UserPanel';
 
 const App = () => {
   const [user, setUser] = useState(null);
 
+  useEffect(() => {
+    // Check if user is logged in
+    const loggedInUser = localStorage.getItem('user');
+    console.log('Logged in user from localStorage:', loggedInUser); // Dodaj logowanie do konsoli
+    if (loggedInUser) {
+      setUser(JSON.parse(loggedInUser));
+    }
+  }, []);
+
   const handleLogin = (userData) => {
+    console.log('User data before setting localStorage:', userData); // Dodaj logowanie do konsoli
     setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+    console.log('User data in localStorage:', localStorage.getItem('user')); // Dodaj logowanie do konsoli
   };
 
   const handleLogout = () => {
     setUser(null);
+    localStorage.removeItem('user');
   };
-
-  const ProtectedRoute = ({ children }) => {
-    return user ? children : <Navigate to="/login" />;
-  };
-
-  useEffect(() => {
-    const mailboxOpened = localStorage.getItem('mailboxOpened');
-    if (!mailboxOpened) {
-      const newWindow = window.open('/mailbox', '_blank');
-      if (newWindow) {
-        localStorage.setItem('mailboxOpened', 'true');
-      } else {
-        console.log('Failed to open mailbox');
-      }
-    }
-
-    // Resetowanie localStorage przy zamknięciu aplikacji
-    const resetMailboxOpened = () => {
-      localStorage.removeItem('mailboxOpened');
-    };
-
-    window.addEventListener('beforeunload', resetMailboxOpened);
-
-    return () => {
-      window.removeEventListener('beforeunload', resetMailboxOpened);
-    };
-  }, []);
 
   return (
     <Router>
-      <div>
-        <Header user={user} onLogout={handleLogout} />
-        <Routes>
-          <Route path="/login" element={user ? <Navigate to={user.role === 'admin' ? "/user-management" : "/home"} /> : <Login onLogin={handleLogin} />} />
-          <Route path="/register" element={user ? <Navigate to={user.role === 'admin' ? "/user-management" : "/home"} /> : <Register />} />
-          <Route path="/reset-password" element={user ? <Navigate to={user.role === 'admin' ? "/user-management" : "/home"} /> : <ResetPassword />} />
-          <Route path="/" element={<Navigate to="/login" />} />
-          <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-          <Route path="/doctors" element={<ProtectedRoute><Doctors /></ProtectedRoute>} />
-          <Route path="/register-doctor" element={<ProtectedRoute><RegisterDoctor /></ProtectedRoute>} />
-          <Route path="/update-doctor" element={<ProtectedRoute><UpdateDoctor /></ProtectedRoute>} />
-          <Route path="/delete-doctor" element={<ProtectedRoute><DeleteDoctor /></ProtectedRoute>} />
-          <Route path="/add-visit" element={<ProtectedRoute><AddVisit /></ProtectedRoute>} />
-          <Route path="/update-visit" element={<ProtectedRoute><UpdateVisit /></ProtectedRoute>} />
-          <Route path="/delete-visit" element={<ProtectedRoute><DeleteVisit /></ProtectedRoute>} />
-          <Route path="/mailbox" element={<ProtectedRoute><Mailbox /></ProtectedRoute>} />
-          <Route path="/requests" element={<ProtectedRoute><Requests /></ProtectedRoute>} />
-          <Route path="/user-panel" element={<ProtectedRoute><UserPanel /></ProtectedRoute>} />
-          <Route path="/admin-panel" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
-          <Route path="/change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
-          <Route path="/user-management" element={<ProtectedRoute><UserManagement /></ProtectedRoute>} />
-        </Routes>
-        <Footer />
-      </div>
+      <Header user={user} onLogout={handleLogout} />
+      <main className="py-3">
+        <Container>
+          <Routes>
+            <Route path="/" element={user ? <Navigate to={user.role === 'admin' ? '/admin-home' : '/user-home'} /> : <Navigate to="/login" />} />
+            <Route path="/user-home" element={user && user.role === 'rejestrator' ? <UserHome user={user} /> : <Navigate to="/login" />} />
+            <Route path="/admin-home" element={user && user.role === 'admin' ? <AdminHome user={user} /> : <Navigate to="/login" />} />
+            <Route path="/add-visit" element={user && user.role === 'rejestrator' ? <AddVisit /> : <Navigate to="/login" />} />
+            <Route path="/update-visit" element={user && user.role === 'rejestrator' ? <UpdateVisit /> : <Navigate to="/login" />} />
+            <Route path="/delete-visit" element={user && user.role === 'rejestrator' ? <DeleteVisit /> : <Navigate to="/login" />} />
+            <Route path="/doctors" element={user && user.role === 'rejestrator' ? <Doctors /> : <Navigate to="/login" />} />
+            <Route path="/register-doctor" element={user && user.role === 'rejestrator' ? <RegisterDoctor /> : <Navigate to="/login" />} />
+            <Route path="/update-doctor" element={user && user.role === 'rejestrator' ? <UpdateDoctor /> : <Navigate to="/login" />} />
+            <Route path="/delete-doctor" element={user && user.role === 'rejestrator' ? <DeleteDoctor /> : <Navigate to="/login" />} />
+            <Route path="/login" element={<Login onLogin={handleLogin} />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/change-password" element={<ChangePassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/user-management" element={user && user.role === 'admin' ? <UserManagement /> : <Navigate to="/login" />} />
+            <Route path="/user-panel" element={<UserPanel />} />
+          </Routes>
+        </Container>
+      </main>
+      <Footer />
     </Router>
   );
 };

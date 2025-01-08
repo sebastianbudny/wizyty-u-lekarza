@@ -5,7 +5,7 @@ const Footer = () => {
   return (
     <footer className="bg-dark text-white mt-5 p-4 text-center">
       <Container>
-        <p>&copy; 2023 Wizyty u Lekarza</p>
+        <p>&copy; 2025 Wizyty u Lekarza</p>
       </Container>
     </footer>
   );

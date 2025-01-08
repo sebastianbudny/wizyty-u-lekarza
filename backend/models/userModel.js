@@ -5,15 +5,13 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, enum: ['admin', 'rejestrator'], default: 'rejestrator' },
+  status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   isActive: { type: Boolean, default: true },
   blocked: { type: Boolean, default: false },
-  temporaryPassword: { type: String },
-  temporaryPasswordExpires: { type: Date },
 }, { timestamps: true });
 
-userSchema.methods.matchPassword = function(enteredPassword, callback) {
-  const isMatch = enteredPassword === this.password;
-  callback(null, isMatch);
+userSchema.methods.matchPassword = function(enteredPassword) {
+  return enteredPassword === this.password;
 };
 
 const User = mongoose.model('User', userSchema);

@@ -1,51 +1,45 @@
 import mongoose from 'mongoose';
-import { mongoDBURL } from '../config.js';
 import User from '../models/userModel.js';
-
-const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(mongoDBURL);
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`Error: ${error.message}`);
-    process.exit(1);
-  }
-};
+import { mongoDBURL } from '../config.js';
 
 const addTestUsers = async () => {
   try {
-    const adminExists = await User.findOne({ email: 'admin@example.com' });
-    const rejestratorExists = await User.findOne({ email: 'user@example.com' });
+    await mongoose.connect(mongoDBURL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
 
-    if (!adminExists) {
-      const admin = new User({
+    console.log('Połączono z bazą danych');
+
+    // Usuń istniejących użytkowników
+    await User.deleteMany();
+
+    // Dodaj użytkowników testowych
+    const users = [
+      {
         username: 'admin',
         email: 'admin@example.com',
         password: 'admin',
         role: 'admin',
-        isActive: true,
-      });
-      await admin.save();
-      console.log('Admin user created');
-    }
-
-    if (!rejestratorExists) {
-      const rejestrator = new User({
+        status: 'approved',
+      },
+      {
         username: 'user',
         email: 'user@example.com',
         password: 'user',
         role: 'rejestrator',
-        isActive: true,
-      });
-      await rejestrator.save();
-      console.log('Rejestrator user created');
-    }
+        status: 'approved',
+      },
+    ];
 
-    process.exit();
+    await User.insertMany(users);
+
+    console.log('Użytkownicy testowi zostali dodani');
+    mongoose.connection.close();
   } catch (error) {
-    console.error(`Error: ${error.message}`);
-    process.exit(1);
+    console.error('Błąd podczas dodawania użytkowników testowych:', error);
+    mongoose.connection.close();
   }
 };
 
-connectDB().then(addTestUsers);
+addTestUsers();
