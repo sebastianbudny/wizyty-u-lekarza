@@ -1,9 +1,10 @@
-
 import express from 'express';
-import { Visit, validHours } from '../models/visitModel.js';
-import { Doctor } from '../models/doctorModel.js';
 import moment from 'moment';
 import mongoose from 'mongoose';
+import { Visit, validHours } from '../models/visitModel.js';
+import { Doctor } from '../models/doctorModel.js';
+import { isRegistrar } from '../utils/roleCheck.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -12,8 +13,14 @@ function isValidDate(date) {
 }
 
 // Route for Save a new Visit
-router.post('/', async (request, response) => {
+router.post('/', protect, async (request, response) => {
     try {
+        const isUserReg = await isRegistrar(request.user._id);
+                
+        if (!isUserReg) {
+            return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
+        }
+
         const { visitDate, visitTime, purpose, idDoctor, patient } = request.body;
 
         // Validate required fields
@@ -65,8 +72,14 @@ router.post('/', async (request, response) => {
 });
 
 // Route for Get All Visits
-router.get('/', async (request, response) => {
+router.get('/', protect, async (request, response) => {
     try {
+        const isUserReg = await isRegistrar(request.user._id);
+                
+        if (!isUserReg) {
+            return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
+        }
+
         const readVisits = await Visit.find({});
         return response.status(200).json({
             count: readVisits.length,
@@ -79,8 +92,14 @@ router.get('/', async (request, response) => {
 });
 
 // Route for Get One Visit from database by id
-router.get('/:_id', async (request, response) => {
+router.get('/:_id', protect, async (request, response) => {
     try {
+        const isUserReg = await isRegistrar(request.user._id);
+                
+        if (!isUserReg) {
+            return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
+        }
+
         const { _id } = request.params;
 
         // Validate _id from URL
@@ -103,8 +122,14 @@ router.get('/:_id', async (request, response) => {
 });
 
 // Route for Update Visit
-router.put('/:_id', async (request, response) => {
+router.put('/:_id', protect, async (request, response) => {
     try {
+        const isUserReg = await isRegistrar(request.user._id);
+                
+        if (!isUserReg) {
+            return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
+        }
+
         const { _id: idFromURL } = request.params;
         const { visitDate, visitTime, patient, purpose, idDoctor } = request.body;
 
@@ -191,8 +216,14 @@ router.put('/:_id', async (request, response) => {
 });
 
 // Route for delete Visit
-router.delete('/:_id', async (request, response) => {
+router.delete('/:_id', protect, async (request, response) => {
     try {
+        const isUserReg = await isRegistrar(request.user._id);
+                
+        if (!isUserReg) {
+            return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
+        }
+
         const { _id } = request.params;
 
          // Validate _id from URL

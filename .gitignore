@@ -1,4 +1,6 @@
 backend/node_modules/
 frontend/node_modules/
-Wymagania.txt
 backend/test/testhash.js
+backend/test/testowi_uzytkownicy.txt
+Nowe_wymagania.txt
+Wymagania.txt

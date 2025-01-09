@@ -1,12 +1,20 @@
 import express from 'express';
-import { Doctor, allowedSpecializations } from '../models/doctorModel.js';
 import mongoose from 'mongoose';
+import { Doctor, allowedSpecializations } from '../models/doctorModel.js';
+import { isRegistrar } from '../utils/roleCheck.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // Route for Save a Doctor
-router.post('/', async (request, response) => {
+router.post('/', protect, async (request, response) => {
     try {
+        const isUserReg = await isRegistrar(request.user._id);
+                
+        if (!isUserReg) {
+            return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
+        }
+
         const { doctorName, specialization} = request.body;
         if (!doctorName || !specialization || !doctorName.trim() || !specialization.trim()) {
             return response.status(400).send({
@@ -34,8 +42,14 @@ router.post('/', async (request, response) => {
 });
 
 // Route for Get All Doctors
-router.get('/', async (request, response) => {
+router.get('/', protect, async (request, response) => {
     try {
+        const isUserReg = await isRegistrar(request.user._id);
+                
+        if (!isUserReg) {
+            return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
+        }
+
         const allDoctors = await Doctor.find({});
         return response.status(200).json({
             count: allDoctors.length,
@@ -48,8 +62,14 @@ router.get('/', async (request, response) => {
 });
 
 // Route for Get One Doctor from database by id
-router.get('/:_id', async (request, response) => {
+router.get('/:_id', protect, async (request, response) => {
     try {
+        const isUserReg = await isRegistrar(request.user._id);
+                
+        if (!isUserReg) {
+            return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
+        }
+
         const { _id } = request.params;
 
         // Validate _id from URL
@@ -66,8 +86,14 @@ router.get('/:_id', async (request, response) => {
 });
 
 // Route for Update Doctor
-router.put('/:_id', async (request, response) => {
+router.put('/:_id', protect, async (request, response) => {
     try {
+        const isUserReg = await isRegistrar(request.user._id);
+                
+        if (!isUserReg) {
+            return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
+        }
+
         const { _id: idFromURL } = request.params;
         const { doctorName, specialization } = request.body;
 
@@ -120,8 +146,14 @@ router.put('/:_id', async (request, response) => {
 });
 
 // Route for delete doctor
-router.delete('/:_id', async (request, response) => {
+router.delete('/:_id', protect, async (request, response) => {
     try {
+        const isUserReg = await isRegistrar(request.user._id);
+                
+        if (!isUserReg) {
+            return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
+        }
+
         const { _id } = request.params;
 
         // Validate _id from URL
