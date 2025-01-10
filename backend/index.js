@@ -1,5 +1,5 @@
 import express from "express";
-import { PORT, mongoDBURL } from "./config.js";
+import { PORT, mongoDBURL } from './config/config.js';
 import mongoose from 'mongoose';
 import visitsRoute from './routes/visitsRoute.js';
 import doctorRoutes from './routes/doctorRoutes.js';
