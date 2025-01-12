@@ -6,20 +6,19 @@ const protect = async (request, response, next) => {
         return next();
     }
     const { authorization } = request.headers;
-    console.log("authorization", authorization);
 
     if (!authorization) {
         return response.status(401).json({ message: 'Brak autoryzacji z powodu braku tokenu' });
     }
     const token = authorization.split(" ")[1];
-    console.log("token", token);
 
     try {
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
         const { _id } = decodedToken;
-        console.log("_id:", _id);
+        if (_id === undefined || _id === null) {
+            return response.status(401).json({ message: 'Błąd podczas autoryzacji' });
+        }
         request.user = await User.findOne({ _id }).select("_id");
-        console.log("Użytkownik został pomyślnie zautoryzowany");
         next();
     } catch (error) {
         console.log(error.message);

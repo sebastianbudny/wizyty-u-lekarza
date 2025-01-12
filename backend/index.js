@@ -3,7 +3,7 @@ import { PORT, mongoDBURL } from './config/config.js';
 import mongoose from 'mongoose';
 import visitsRoute from './routes/visitsRoute.js';
 import doctorRoutes from './routes/doctorRoutes.js';
-import userRoutes from './routes/userRoutes.js';
+import userRoutes from './routes/user/userRoutes.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
 

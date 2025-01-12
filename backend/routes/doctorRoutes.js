@@ -7,7 +7,7 @@ import { protect } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 // Route for Save a Doctor
-router.post('/', protect, async (request, response) => {
+router.post('/add-doctor', protect, async (request, response) => {
     try {
         const isUserReg = await isRegistrar(request.user._id);
                 
@@ -42,7 +42,7 @@ router.post('/', protect, async (request, response) => {
 });
 
 // Route for Get All Doctors
-router.get('/', protect, async (request, response) => {
+router.get('/view-all-doctors', protect, async (request, response) => {
     try {
         const isUserReg = await isRegistrar(request.user._id);
                 
@@ -52,7 +52,6 @@ router.get('/', protect, async (request, response) => {
 
         const allDoctors = await Doctor.find({});
         return response.status(200).json({
-            count: allDoctors.length,
             data: allDoctors
         });
     } catch (error) {
@@ -62,7 +61,7 @@ router.get('/', protect, async (request, response) => {
 });
 
 // Route for Get One Doctor from database by id
-router.get('/:_id', protect, async (request, response) => {
+router.get('/view-one-doctor/:_id', protect, async (request, response) => {
     try {
         const isUserReg = await isRegistrar(request.user._id);
                 
@@ -86,7 +85,7 @@ router.get('/:_id', protect, async (request, response) => {
 });
 
 // Route for Update Doctor
-router.put('/:_id', protect, async (request, response) => {
+router.put('/update-doctor/:_id', protect, async (request, response) => {
     try {
         const isUserReg = await isRegistrar(request.user._id);
                 
@@ -146,7 +145,7 @@ router.put('/:_id', protect, async (request, response) => {
 });
 
 // Route for delete doctor
-router.delete('/:_id', protect, async (request, response) => {
+router.delete('/delete_doctor/:_id', protect, async (request, response) => {
     try {
         const isUserReg = await isRegistrar(request.user._id);
                 

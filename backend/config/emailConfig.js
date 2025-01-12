@@ -21,4 +21,4 @@ async function emailTransport() {
   return transporter;
 }
 
-export default emailTransport;
+export { emailTransport };

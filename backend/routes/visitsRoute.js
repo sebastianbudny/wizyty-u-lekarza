@@ -13,7 +13,7 @@ function isValidDate(date) {
 }
 
 // Route for Save a new Visit
-router.post('/', protect, async (request, response) => {
+router.post('/add-visit', protect, async (request, response) => {
     try {
         const isUserReg = await isRegistrar(request.user._id);
                 
@@ -72,7 +72,7 @@ router.post('/', protect, async (request, response) => {
 });
 
 // Route for Get All Visits
-router.get('/', protect, async (request, response) => {
+router.get('/view-all-visits', protect, async (request, response) => {
     try {
         const isUserReg = await isRegistrar(request.user._id);
                 
@@ -82,7 +82,6 @@ router.get('/', protect, async (request, response) => {
 
         const readVisits = await Visit.find({});
         return response.status(200).json({
-            count: readVisits.length,
             data: readVisits
         });
     } catch (error) {
@@ -92,7 +91,7 @@ router.get('/', protect, async (request, response) => {
 });
 
 // Route for Get One Visit from database by id
-router.get('/:_id', protect, async (request, response) => {
+router.get('/view-one-visit/:_id', protect, async (request, response) => {
     try {
         const isUserReg = await isRegistrar(request.user._id);
                 
@@ -122,7 +121,7 @@ router.get('/:_id', protect, async (request, response) => {
 });
 
 // Route for Update Visit
-router.put('/:_id', protect, async (request, response) => {
+router.put('/update-visit/:_id', protect, async (request, response) => {
     try {
         const isUserReg = await isRegistrar(request.user._id);
                 
@@ -216,7 +215,7 @@ router.put('/:_id', protect, async (request, response) => {
 });
 
 // Route for delete Visit
-router.delete('/:_id', protect, async (request, response) => {
+router.delete('/delete-visit/:_id', protect, async (request, response) => {
     try {
         const isUserReg = await isRegistrar(request.user._id);
                 
