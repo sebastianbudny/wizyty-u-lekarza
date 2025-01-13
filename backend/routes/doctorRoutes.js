@@ -6,7 +6,7 @@ import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Route for Save a Doctor
+//Trasa do dodawania lekarza
 router.post('/add-doctor', protect, async (request, response) => {
     try {
         const isUserReg = await isRegistrar(request.user._id);
@@ -16,32 +16,49 @@ router.post('/add-doctor', protect, async (request, response) => {
         }
 
         const { doctorName, specialization} = request.body;
+
+        //Walidacja wymaganych pól
         if (!doctorName || !specialization || !doctorName.trim() || !specialization.trim()) {
             return response.status(400).send({
                 message: 'Podaj wszystkie wymagane pola: doctorName i specialization. Wartości wszystkich pól nie mogą zawierać tylko białych znaków'
             });
         }
+
+        //Waliadacja specjalizacji
+        if (!allowedSpecializations.includes(specialization)) {
+            return response.status(400).send({
+                message: `Niepoprawna specjalizacja, wybierz jedną z dozwolonych: ${allowedSpecializations.join(', ')}`
+            });
+        }
+
+        //Sprawdzenie, czy inny lekarz o takiej samej nazwie i specjalizacji już istnieje
+        const existingDoctor = await Doctor.findOne({
+            doctorName: doctorName,
+            specialization: specialization
+        });
+
+        if (existingDoctor) {
+            return response.status(409).send({
+                message: 'Inny lekarz z tą samą nazwą i specjalizacją już istnieje'
+            });
+        }
         
+        //Dodanie lekarza
         const newDoctor = new Doctor({
             doctorName: doctorName, 
             specialization: specialization
         });
         
+        //Zapisanie lekarza
         const createdDoctor = await newDoctor.save();
         return response.status(201).send(createdDoctor);
     } catch (error) {
         console.log(error.message);
-        if (error.code === 11000) {
-            response.status(409).send({ message: 'Lekarz z takim imieniem, nazwiskiem i specjalizacją już istnieje.' });
-        } else if (error.name === 'ValidationError') {
-            response.status(400).send({ message: `Nieprawidłowa specjalizacja. Dozwolone specjalizacje to:\n${allowedSpecializations.join(', ')}` });
-        } else {
-            response.status(500).send({message: error.message});
-        }
+        response.status(500).send({message: error.message});
     }
 });
 
-// Route for Get All Doctors
+//Trasa do pobierania wszystkich lekarzy
 router.get('/view-all-doctors', protect, async (request, response) => {
     try {
         const isUserReg = await isRegistrar(request.user._id);
@@ -51,16 +68,14 @@ router.get('/view-all-doctors', protect, async (request, response) => {
         }
 
         const allDoctors = await Doctor.find({});
-        return response.status(200).json({
-            data: allDoctors
-        });
+        return response.status(200).json(allDoctors);
     } catch (error) {
         console.log(error.message);
         response.status(500).send({message: error.message});
     }
 });
 
-// Route for Get One Doctor from database by id
+//Trasa do pobierania jednego lekarza
 router.get('/view-one-doctor/:_id', protect, async (request, response) => {
     try {
         const isUserReg = await isRegistrar(request.user._id);
@@ -69,14 +84,14 @@ router.get('/view-one-doctor/:_id', protect, async (request, response) => {
             return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
         }
 
-        const { _id } = request.params;
+        const { _id: idFromURL } = request.params;
 
-        // Validate _id from URL
-        if (!mongoose.Types.ObjectId.isValid(_id)) {
+        //Walidacja _id z URL
+        if (!mongoose.Types.ObjectId.isValid(idFromURL)) {
             return response.status(404).json({ message: 'Nie znaleziono lekarza - niepoprawne ID' });
         }
 
-        const readDoctor = await Doctor.findById({_id});
+        const readDoctor = await Doctor.findById({_id: idFromURL});
         return response.status(200).json(readDoctor);
     } catch (error) {
         console.log(error.message);
@@ -84,7 +99,7 @@ router.get('/view-one-doctor/:_id', protect, async (request, response) => {
     }
 });
 
-// Route for Update Doctor
+//Trasa do aktualizacji lekarza
 router.put('/update-doctor/:_id', protect, async (request, response) => {
     try {
         const isUserReg = await isRegistrar(request.user._id);
@@ -96,30 +111,30 @@ router.put('/update-doctor/:_id', protect, async (request, response) => {
         const { _id: idFromURL } = request.params;
         const { doctorName, specialization } = request.body;
 
-        // Validate _id from URL
+        //Walidacja _id z URL
         if (!mongoose.Types.ObjectId.isValid(idFromURL)) {
             return response.status(404).json({ message: 'Nie znaleziono lekarza - niepoprawne ID' });
         }
 
-        // Check for empty fields or fields with only whitespace
+        //Walidacja wymaganych pól
         if (!doctorName || !specialization || !doctorName.trim() || !specialization.trim()) {
             return response.status(400).send({
                 message: 'Podaj wszystkie wymagane pola: doctorName i specialization. Pola w zapytaniu nie mogą zawierać tylko białych znaków'
             });
         }
 
-        // Check if the specialization is valid
+        //Waliadacja specjalizacji
         if (!allowedSpecializations.includes(specialization)) {
             return response.status(400).send({
                 message: `Niepoprawna specjalizacja, wybierz jedną z dozwolonych: ${allowedSpecializations.join(', ')}`
             });
         }
 
-        // Check if another doctor with the same name and specialization already exists
+        //Sprawdzenie, czy inny lekarz o takiej samej nazwie i specjalizacji już istnieje
         const existingDoctor = await Doctor.findOne({
             doctorName: doctorName,
             specialization: specialization,
-            _id: { $ne: idFromURL }  // Exclude the current doctor being updated
+            _id: { $ne: idFromURL } 
         });
 
         if (existingDoctor) {
@@ -128,7 +143,7 @@ router.put('/update-doctor/:_id', protect, async (request, response) => {
             });
         }
 
-        // Update the doctor
+        //Aktualizacja lekarza
         const updateData = { doctorName, specialization };
         const updatedDoctor = await Doctor.findByIdAndUpdate(idFromURL, updateData, {new: true});
         if (!updatedDoctor) {
@@ -144,7 +159,7 @@ router.put('/update-doctor/:_id', protect, async (request, response) => {
     }
 });
 
-// Route for delete doctor
+//Trasa do usuwania lekarza
 router.delete('/delete_doctor/:_id', protect, async (request, response) => {
     try {
         const isUserReg = await isRegistrar(request.user._id);
@@ -153,14 +168,15 @@ router.delete('/delete_doctor/:_id', protect, async (request, response) => {
             return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
         }
 
-        const { _id } = request.params;
+        const { _id: idFromURL } = request.params;
 
-        // Validate _id from URL
-        if (!mongoose.Types.ObjectId.isValid(_id)) {
+        //Walidacja _id z URL
+        if (!mongoose.Types.ObjectId.isValid(idFromURL)) {
             return response.status(404).json({ message: 'Nie znaleziono lekarza - niepoprawne ID' });
         }
 
-        const result = await Doctor.findByIdAndDelete(_id);
+        //Usuwanie lekarza
+        const result = await Doctor.findByIdAndDelete(idFromURL);
         if (!result) {
             return response.status(404).json({ message: 'Nie znaleziono lekarza'});
         }

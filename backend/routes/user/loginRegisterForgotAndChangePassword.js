@@ -1,10 +1,10 @@
 import express from 'express';
-import User from '../../models/userModel.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import validator from "validator";
 import nodemailer from 'nodemailer';
+import { User } from '../../models/userModel.js';
 import { emailTransport } from '../../config/emailConfig.js';
 
 dotenv.config();
@@ -84,7 +84,7 @@ router.post('/login', async (request, response) => {
       }
   
       if (user?.isActive === false) {
-        return response.status(403).json({ message: 'Konto zablokowane' });
+        return response.status(403).json({ message: 'Konto jest zablokowane' });
       }
 
       if (password === null || password === undefined) {

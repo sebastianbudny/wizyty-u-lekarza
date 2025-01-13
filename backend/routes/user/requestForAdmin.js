@@ -1,7 +1,7 @@
 import express from 'express';
-import User from '../../models/userModel.js';
 import validator from 'validator';
 import nodemailer from 'nodemailer';
+import { User } from '../../models/userModel.js';
 import { emailTransport } from '../../config/emailConfig.js';
 
 const router = express.Router();

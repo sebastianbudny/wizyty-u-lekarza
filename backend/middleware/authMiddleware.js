@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import User from '../models/userModel.js';
+import { User } from '../models/userModel.js';
 
 const protect = async (request, response, next) => {
     if (request.path === '/login' || request.path === '/register') {

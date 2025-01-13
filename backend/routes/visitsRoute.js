@@ -12,7 +12,7 @@ function isValidDate(date) {
     return moment(date, 'YYYY-MM-DD', true).isValid();
 }
 
-// Route for Save a new Visit
+//Trasa dla dodawania wizyty
 router.post('/add-visit', protect, async (request, response) => {
     try {
         const isUserReg = await isRegistrar(request.user._id);
@@ -23,55 +23,78 @@ router.post('/add-visit', protect, async (request, response) => {
 
         const { visitDate, visitTime, purpose, idDoctor, patient } = request.body;
 
-        // Validate required fields
+        //Walidacja wymaganych pól
         if (!visitDate || !visitTime || !purpose || !idDoctor || !patient || !visitDate.trim() || !visitTime.trim() || !purpose.trim() || !idDoctor.trim() || !patient.trim()) {
             return response.status(400).send({
                 message: 'Podaj wszystkie wymagane pola: visitDate, visitTime, purpose, idDoctor i patient. Wartości wszystkich pól nie mogą zawierać tylko białych znaków'
             });
         }
 
+        // Walidacja formatu daty
         if (!isValidDate(visitDate)) {
             return response.status(400).send({
                 message: 'Nieprawidłowa data, data musi być podana w formacie YYYY-MM-DD'
             });
         }
 
-        // Validate _id from URL
+        // Walidacja godziny wizyty
+        if (!validHours.includes(visitTime)) {
+            return response.status(400).send({
+                message: `Nieprawidłowa godzina wizyty. Dozwolone godziny to: ${validHours.join(', ')}`
+            });
+        }
+
+        //Walidacja _id lekarza
         if (!mongoose.Types.ObjectId.isValid(idDoctor)) {
             return response.status(404).json({ message: 'Nie znaleziono lekarza - niepoprawne ID lekarza' });
         }
 
-        // Validate that the doctor exists in the database by name
+        //Sprawdzenie, czy lekarz istnieje
         const doctorExists = await Doctor.findById({ _id: idDoctor });
         if (!doctorExists) {
             return response.status(404).send({
                 message: 'Podany lekarz o id ' + idDoctor + ' nie istnieje w bazie danych'
             });
         }
+
+        //Sprawdzenie, czy instnieje wizyta w tym samym dniu i godzinie dla tego samego lekarza lub pacjenta
+        const existingVisitDoctor = await Visit.findOne({
+            visitDate: visitDate,
+            visitTime: visitTime,
+            doctor: idDoctor                
+        });
+
+        const existingVisitPatient = await Visit.findOne({
+            visitDate: visitDate,
+            visitTime: visitTime,
+            patient: patient
+        });
+
+        if (existingVisitDoctor || existingVisitPatient) {
+            return response.status(409).send({
+                message: 'Wizyta o tej godzinie w danym dniu dla danego LEKARZA już istnieje lub wizyta o tej godzinie w danym dniu dla danego PACJENTA już istnieje. '
+            });
+        }
         
+        //Stowrzenie nowej wizyty
         const newVisit = new Visit({
             visitDate: visitDate,
             visitTime: visitTime,
             patient: patient,
             purpose: purpose,
-            doctor: doctorExists._id  // Link the visit to the doctor's ObjectId
+            doctor: doctorExists._id  //Link wizyty do ObjectId lekarza                                  
         });
 
+        //Zapisanie wizyty
         const createVisit = await newVisit.save();
         return response.status(201).send(createVisit);
     } catch (error) {
         console.log(error.message);
-        if (error.code === 11000) {
-            response.status(409).send({ message: 'Wizyta o tej godzinie w danym dniu dla danego LEKARZA już istnieje lub/i wizyta o tej godzinie w danym dniu dla danego PACJENTA już istnieje. ' });
-        } else if (error.name === 'ValidationError') {
-            response.status(400).send({ message: `Nieprawidłowa godzina wizyty. Dozwolone godziny to: ${validHours.join(', ')}` });
-        } else {
-            response.status(500).send({message: error.message});
-        }
+        response.status(500).send({message: error.message});
     }
 });
 
-// Route for Get All Visits
+//Trasa dla pobrania wszystkich wizyt
 router.get('/view-all-visits', protect, async (request, response) => {
     try {
         const isUserReg = await isRegistrar(request.user._id);
@@ -81,16 +104,14 @@ router.get('/view-all-visits', protect, async (request, response) => {
         }
 
         const readVisits = await Visit.find({});
-        return response.status(200).json({
-            data: readVisits
-        });
+        return response.status(200).json(readVisits);
     } catch (error) {
         console.log(error.message);
         response.status(500).send({message: error.message});
     }
 });
 
-// Route for Get One Visit from database by id
+//Trasa dla pobrania jednej wizyty
 router.get('/view-one-visit/:_id', protect, async (request, response) => {
     try {
         const isUserReg = await isRegistrar(request.user._id);
@@ -99,14 +120,14 @@ router.get('/view-one-visit/:_id', protect, async (request, response) => {
             return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
         }
 
-        const { _id } = request.params;
+        const { _id: idFromURL } = request.params;
 
-        // Validate _id from URL
-        if (!mongoose.Types.ObjectId.isValid(_id)) {
+        //Walidacja _id z URL
+        if (!mongoose.Types.ObjectId.isValid(idFromURL)) {
             return response.status(404).json({ message: 'Nie znaleziono wizyty - niepoprawne ID' });
         }
               
-        const readVisit = await Visit.findById({_id});
+        const readVisit = await Visit.findById({_id: idFromURL});
         if (!readVisit) {
             return response.status(404).send({
                 message: 'Nie znaleziono Wizyty po _id do wyświetlenia'
@@ -120,7 +141,7 @@ router.get('/view-one-visit/:_id', protect, async (request, response) => {
     }
 });
 
-// Route for Update Visit
+//Trasa dla aktualizacji wizyty
 router.put('/update-visit/:_id', protect, async (request, response) => {
     try {
         const isUserReg = await isRegistrar(request.user._id);
@@ -132,7 +153,7 @@ router.put('/update-visit/:_id', protect, async (request, response) => {
         const { _id: idFromURL } = request.params;
         const { visitDate, visitTime, patient, purpose, idDoctor } = request.body;
 
-        // Validate _id from URL
+        //Walidacja _id z URL
         if (!mongoose.Types.ObjectId.isValid(idFromURL)) {
             return response.status(404).json({ message: 'Nie znaleziono wizyty - niepoprawne ID' });
         }
@@ -144,33 +165,33 @@ router.put('/update-visit/:_id', protect, async (request, response) => {
             });
         }
 
-        // Validate required fields
+        //Walidacja wymaganych pól
         if (!visitDate || !visitTime || !purpose || !idDoctor || !patient || !visitDate.trim() || !visitTime.trim() || !purpose.trim() || !idDoctor.trim() || !patient.trim()) {
             return response.status(400).send({
                 message: 'Podaj wszystkie wymagane pola: visitDate, visitTime, purpose, idDoctor i patient. Wartości wszystkich pól nie mogą zawierać tylko białych znaków'
             });
         }
 
-        // Validate visitDate
+        // Walidacja formatu daty
         if (!isValidDate(visitDate)) {
             return response.status(400).send({
                 message: 'Nieprawidłowa data, data musi być podana w formacie YYYY-MM-DD'
             });
         }
 
-        // Validate visitTime is within valid hours
+        // Walidacja godziny wizyty
         if (!validHours.includes(visitTime)) {
             return response.status(400).send({
                 message: `Nieprawidłowa godzina wizyty. Dozwolone godziny to: ${validHours.join(', ')}`
             });
         }
 
-        // Validate _id from URL
+        //Walidacja _id z URL
         if (!mongoose.Types.ObjectId.isValid(idDoctor)) {
             return response.status(404).json({ message: 'Nie znaleziono lekarza - niepoprawne ID lekarza' });
         }
 
-        // Validate that the doctor exists in the database by name
+        //Sprawdzenie, czy lekarz istnieje
         const doctorExists = await Doctor.findById({ _id: idDoctor });
         if (!doctorExists) {
             return response.status(404).send({
@@ -178,20 +199,19 @@ router.put('/update-visit/:_id', protect, async (request, response) => {
             });
         }
 
-        // Check if a visit already exists with the same date, time, and doctor
+        //Sprawdzenie, czy instnieje wizyta w tym samym dniu i godzinie dla tego samego lekarza lub pacjenta
         const existingVisitDoctor = await Visit.findOne({
             visitDate: visitDate,
             visitTime: visitTime,
             doctor: idDoctor,
-            _id: { $ne: idFromURL }  // Exclude the current visit being updated
+            _id: { $ne: idFromURL }                  
         });
 
-        // Check if a visit already exists with the same date, time, and patient
         const existingVisitPatient = await Visit.findOne({
             visitDate: visitDate,
             visitTime: visitTime,
             patient: patient,
-            _id: { $ne: idFromURL }  // Exclude the current visit being updated
+            _id: { $ne: idFromURL }
         });
 
         if (existingVisitDoctor || existingVisitPatient) {
@@ -200,7 +220,7 @@ router.put('/update-visit/:_id', protect, async (request, response) => {
             });
         }
 
-        // Update the visit
+        //Aktualizacja wizyty
         const updateData = { visitDate, visitTime, patient, purpose, doctor: idDoctor };
         const updatedVisit = await Visit.findByIdAndUpdate(idFromURL, updateData, { new: true});
         if (!updatedVisit) {
@@ -214,7 +234,7 @@ router.put('/update-visit/:_id', protect, async (request, response) => {
     }
 });
 
-// Route for delete Visit
+// Trasa dla usunięcia wizyty
 router.delete('/delete-visit/:_id', protect, async (request, response) => {
     try {
         const isUserReg = await isRegistrar(request.user._id);
@@ -223,14 +243,15 @@ router.delete('/delete-visit/:_id', protect, async (request, response) => {
             return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
         }
 
-        const { _id } = request.params;
+        const { _id: idFromURL } = request.params;
 
-         // Validate _id from URL
-        if (!mongoose.Types.ObjectId.isValid(_id)) {
+         ///Walidacja _id z URL
+        if (!mongoose.Types.ObjectId.isValid(idFromURL)) {
             return response.status(404).json({ message: 'Nie znaleziono wizyty - niepoprawne ID' });
         }
 
-        const checkIfExist = await Visit.findByIdAndDelete(_id);
+        //Usunięcie wizyty
+        const checkIfExist = await Visit.findByIdAndDelete(idFromURL);
         if (!checkIfExist) {
             return response.status(404).json({ message: 'Nie znaleziono wizyty'});
         }
