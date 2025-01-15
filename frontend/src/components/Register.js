@@ -2,19 +2,30 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
-import userService from '../services/userService';
-import { registerSchema } from '../utils/validationSchemas';
+import { registerSchema } from '../utils/ValidationSchemas.js';
+import UserService from '../services/UserService.js';
 
 const Register = () => {
   const navigate = useNavigate();
-  const [error, setError] = useState('');
+  const [status, setStatus] = useState({ type: '', message: '' }); // Changed from error to status
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      await userService.register(values);
-      navigate('/login');
+      const response = await UserService.register(values);
+      setStatus({
+        type: 'success',
+        message: 'Pomyślnie zarejestrowano. Zaloguj się, aby kontynuować.'
+      });
+      
+      //Automatyczne otwarcie maila w ethereal w nowej karcie
+      setTimeout(() => { if (response.data.previewUrl) window.open(response.data.previewUrl, '_blank'); }, 3000);
+
+      setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Błąd rejestracji');
+      setStatus({
+        type: 'error',
+        message: err.response?.data?.message || 'Błąd rejestracji'
+      });
     } finally {
       setSubmitting(false);
     }
@@ -27,9 +38,9 @@ const Register = () => {
           Rejestracja
         </Typography>
 
-        {error && (
-          <Alert severity="error" sx={{ mt: 2, width: '100%' }}>
-            {error}
+        {status.message && (
+          <Alert severity={status.type} sx={{ mt: 2, width: '100%' }}>
+            {status.message}
           </Alert>
         )}
 
@@ -76,7 +87,7 @@ const Register = () => {
               />
 
               <Button
-                className = "btn-primary"
+                className="btn-primary"
                 type="submit"
                 fullWidth
                 variant="contained"

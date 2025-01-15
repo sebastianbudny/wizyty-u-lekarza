@@ -49,7 +49,7 @@ router.post('/request-admin', async (request, response) => {
     // Send confirmation email
     const transporter = await emailTransport();
     const info = await transporter.sendMail({
-      from: '"System Administracyjny" <noreply@example.com>',
+      from: '"System do rezerwacji wizyt lekarskich" <noreply@wizytyulekarza.com>',
       to: email,
       subject: 'Wniosek o konto administratora',
       html: `

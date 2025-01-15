@@ -1,5 +1,4 @@
 import express from "express";
-import { PORT, mongoDBURL } from './config/config.js';
 import mongoose from 'mongoose';
 import visitsRoute from './routes/visitsRoute.js';
 import doctorRoutes from './routes/doctorRoutes.js';
@@ -33,11 +32,11 @@ app.use('/api/doctors', doctorRoutes);
 app.use('/api/users', userRoutes);
 
 mongoose
-    .connect(mongoDBURL)
+    .connect(process.env.MONGODB_URL)
     .then(() => {
         console.log('Aplikacja została połączona z bazą danych');
-        app.listen(PORT, () => {
-            console.log(`Aplikacja nasłuchuje portu: ${PORT}`);
+        app.listen(process.env.PORT, () => {
+            console.log(`Aplikacja nasłuchuje portu: ${process.env.PORT}`);
         });
     })
     .catch((error) => {

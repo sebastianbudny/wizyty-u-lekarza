@@ -55,6 +55,18 @@ router.post('/register', async (request, response) => {
         email,
         password: hashedPassword,
       });
+
+      // Send confirmation email
+      const transporter = await emailTransport();
+      const info = await transporter.sendMail({
+        from: '"System do rezerwacji wizyt lekarskich" <noreply@wizytyulekarza.com>',
+        to: email,
+        subject: 'Rejestracja w systemie rezerwacji wizyt lekarskich',
+        html: `
+          <h1>Założenie konta</h1>
+          <p>Pomyślnie udało się założyć konto w systemie rezerwacji wizyt lekarskich.</p>
+        `
+      });
   
       if (user) {
         response.status(201).json({
@@ -63,6 +75,7 @@ router.post('/register', async (request, response) => {
           email: user.email,
           role: user.role,
           token: generateToken(user._id),
+          previewUrl: nodemailer.getTestMessageUrl(info)
         });
       }
     } catch (error) {
@@ -133,10 +146,10 @@ router.post('/forgot-password', async (request, response) => {
   
       // Send email using ethereal
       const transporter = await emailTransport();
-      const resetUrl = `${request.protocol}://${request.get('host')}/reset-password/${resetToken}`;
+      const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
   
       const info = await transporter.sendMail({
-        from: '"System Reset Hasła" <noreply@example.com>',
+        from: '"System do rezerwacji wizyt lekarskich" <noreply@wizytyulekarza.com>',
         to: user.email,
         subject: 'Reset hasła',
         html: `

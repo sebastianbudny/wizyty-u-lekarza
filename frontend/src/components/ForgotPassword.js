@@ -2,18 +2,22 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
-import userService from '../services/userService';
+import UserService from '../services/UserService.js';
 
 const ForgotPassword = () => {
   const [status, setStatus] = useState({ type: '', message: '' });
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const response = await userService.forgotPassword(values.email);
+      const response = await UserService.forgotPassword(values.email);
       setStatus({
         type: 'success',
         message: 'Link do resetowania hasła został wysłany na podany adres email'
       });
+
+      //Automatyczne otwarcie maila w ethereal w nowej karcie
+      setTimeout(() => { if (response.data.previewUrl) window.open(response.data.previewUrl, '_blank'); }, 3000);
+
     } catch (err) {
       setStatus({
         type: 'error',

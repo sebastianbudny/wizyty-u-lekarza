@@ -1,29 +1,27 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
+import { resetPasswordSchema } from '../utils/ValidationSchemas.js';
 import UserService from '../services/UserService.js';
 
-const RequestAdmin = () => {
+const ResetPassword = () => {
   const navigate = useNavigate();
+  const { token } = useParams();
   const [status, setStatus] = useState({ type: '', message: '' });
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const response = await UserService.requestAdmin(values);
+      await UserService.resetPassword(token, values.password);
       setStatus({
         type: 'success',
-        message: 'Wniosek został wysłany. Po weryfikacji otrzymasz email z dalszymi instrukcjami.'
+        message: 'Pomyślnie zresetowano hasło'
       });
-
-      //Automatyczne otwarcie maila w ethereal w nowej karcie
-      setTimeout(() => { if (response.data.previewUrl) window.open(response.data.previewUrl, '_blank'); }, 3000);
-
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
       setStatus({
         type: 'error',
-        message: err.response?.data?.message || 'Wystąpił błąd podczas wysyłania wniosku'
+        message: err.response?.data?.message || 'Wystąpił błąd podczas resetowania hasła'
       });
     } finally {
       setSubmitting(false);
@@ -34,7 +32,7 @@ const RequestAdmin = () => {
     <Container maxWidth="sm">
       <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Typography component="h1" variant="h5" className="form-title">
-          Wniosek o uprawnienia administratora
+          Ustaw nowe hasło
         </Typography>
 
         {status.message && (
@@ -44,58 +42,45 @@ const RequestAdmin = () => {
         )}
 
         <Formik
-          initialValues={{ username: '', email: '', reasonForAdmin: '' }}
+          initialValues={{ password: '', confirmPassword: '' }}
+          validationSchema={resetPasswordSchema}
           onSubmit={handleSubmit}
         >
-          {({ isSubmitting }) => (
+          {({ errors, touched, isSubmitting }) => (
             <Form style={{ width: '100%', marginTop: '1rem' }}>
               <Field
-                name="username"
+                name="password"
                 as={TextField}
                 margin="normal"
                 required
                 fullWidth
-                label="Nazwa użytkownika"
-                autoFocus
+                label="Nowe hasło"
+                type="password"
+                error={touched.password && Boolean(errors.password)}
+                helperText={touched.password && errors.password}
               />
 
               <Field
-                name="email"
+                name="confirmPassword"
                 as={TextField}
                 margin="normal"
                 required
                 fullWidth
-                label="Email"
-                type="email"
-              />
-
-              <Field
-                name="reasonForAdmin"
-                as={TextField}
-                margin="normal"
-                required
-                fullWidth
-                label="Powód ubiegania się o uprawnienia administratora"
-                multiline
-                rows={4}
+                label="Potwierdź nowe hasło"
+                type="password"
+                error={touched.confirmPassword && Boolean(errors.confirmPassword)}
+                helperText={touched.confirmPassword && errors.confirmPassword}
               />
 
               <Button
-                className="btn-primary"
                 type="submit"
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
                 disabled={isSubmitting}
               >
-                Wyślij wniosek
+                Zapisz nowe hasło
               </Button>
-
-              <Box sx={{ textAlign: 'center' }}>
-                <Link to="/login">
-                  Powrót do logowania
-                </Link>
-              </Box>
             </Form>
           )}
         </Formik>
@@ -104,4 +89,4 @@ const RequestAdmin = () => {
   );
 };
 
-export default RequestAdmin;
+export default ResetPassword;

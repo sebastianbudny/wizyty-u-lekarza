@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
-import userService from '../services/userService';
+import UserService from '../services/UserService.js';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -10,7 +10,7 @@ const Login = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      await userService.login(values);
+      await UserService.login(values);
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Błąd logowania');

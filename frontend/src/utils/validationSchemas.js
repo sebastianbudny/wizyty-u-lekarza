@@ -15,3 +15,16 @@ export const registerSchema = Yup.object().shape({
     .matches(/[^a-zA-Z0-9]/, 'Hasło musi zawierać znak specjalny')
     .required('Hasło jest wymagane')
 });
+
+export const resetPasswordSchema = Yup.object().shape({
+  password: Yup.string()
+    .min(8, 'Hasło musi mieć minimum 8 znaków')
+    .matches(/[a-z]/, 'Hasło musi zawierać małą literę')
+    .matches(/[A-Z]/, 'Hasło musi zawierać dużą literę')
+    .matches(/[0-9]/, 'Hasło musi zawierać cyfrę')
+    .matches(/[^a-zA-Z0-9]/, 'Hasło musi zawierać znak specjalny')
+    .required('Hasło jest wymagane'),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('password'), null], 'Hasła muszą być takie same')
+    .required('Potwierdzenie hasła jest wymagane')
+});
