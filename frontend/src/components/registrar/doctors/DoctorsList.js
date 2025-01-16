@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Typography, Paper, Table, TableBody, TableCell, 
   TableContainer, TableHead, TableRow } from '@mui/material';
-import DoctorService from '../../../services/DoktorService.js';
+import DoctorService from '../../../services/DoctorService';
 
 const DoctorsList = () => {
   const [doctors, setDoctors] = useState([]);
@@ -9,7 +9,7 @@ const DoctorsList = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await DoctorService.getAllDoctors();
+        const response = await DoctorService.viewAllDoctors();
         setDoctors(response.data);
       } catch (error) {
         console.error('Error fetching doctors:', error);
@@ -29,17 +29,13 @@ const DoctorsList = () => {
             <TableRow>
               <TableCell>Imię i Nazwisko</TableCell>
               <TableCell>Specjalizacja</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Telefon</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {doctors.map((doctor) => (
               <TableRow key={doctor._id}>
-                <TableCell>{doctor.name}</TableCell>
+                <TableCell>{doctor.doctorName}</TableCell>
                 <TableCell>{doctor.specialization}</TableCell>
-                <TableCell>{doctor.email}</TableCell>
-                <TableCell>{doctor.phone}</TableCell>
               </TableRow>
             ))}
           </TableBody>

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_URL } from '../config.js';
+import { API_URL } from '../config';
 
 const apiURLVisits = `${API_URL}/visits`;
 
@@ -10,12 +10,12 @@ const authHeader = () => {
   };
 
 const VisitService = {
-  getAllVisits: async () => {
-    return axios.get(`${apiURLVisits}/all-visits`, { headers: authHeader() });
+  viewAllVisits: async () => {
+    return axios.get(`${apiURLVisits}/view-all-visits`, { headers: authHeader() });
   },
   
-  getVisit: async (id) => {
-    return axios.get(`${apiURLVisits}/view-visit/${id}`, { headers: authHeader() });
+  viewOneVisit: async (id) => {
+    return axios.get(`${apiURLVisits}/view-one-visit/${id}`, { headers: authHeader() });
   },
 
   addVisit: async (visitData) => {

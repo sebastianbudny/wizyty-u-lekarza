@@ -2,8 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import { TextField, Button, Container, Typography, Box, Alert, MenuItem } from '@mui/material';
-import VisitService from '../../../services/VisitService.js';
-import DoctorService from '../../../services/DoctorService.js';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import pl from 'date-fns/locale/pl';
+import VisitService from '../../../services/VisitService';
+import DoctorService from '../../../services/DoctorService';
 
 const AddVisit = () => {
   const navigate = useNavigate();
@@ -13,7 +18,7 @@ const AddVisit = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await DoctorService.getAllDoctors();
+        const response = await DoctorService.viewAllDoctors();
         setDoctors(response.data);
       } catch (error) {
         console.error('Error fetching doctors:', error);
@@ -41,97 +46,101 @@ const AddVisit = () => {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Typography variant="h4" sx={{ mb: 4 }}>
-          Dodaj wizytę
-        </Typography>
+    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={pl}>
+      <Container maxWidth="sm">
+        <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Typography variant="h4" sx={{ mb: 4 }}>
+            Dodaj wizytę
+          </Typography>
 
-        {status.message && (
-          <Alert severity={status.type} sx={{ mt: 2, width: '100%', mb: 2 }}>
-            {status.message}
-          </Alert>
-        )}
-
-        <Formik
-          initialValues={{
-            date: '',
-            time: '',
-            patient: '',
-            doctor: '',
-            purpose: ''
-          }}
-          onSubmit={handleSubmit}
-        >
-          {({ isSubmitting }) => (
-            <Form style={{ width: '100%' }}>
-              <Field
-                name="date"
-                as={TextField}
-                type="date"
-                margin="normal"
-                required
-                fullWidth
-                label="Data wizyty"
-                InputLabelProps={{ shrink: true }}
-              />
-              <Field
-                name="time"
-                as={TextField}
-                type="time"
-                margin="normal"
-                required
-                fullWidth
-                label="Godzina wizyty"
-                InputLabelProps={{ shrink: true }}
-              />
-              <Field
-                name="patient"
-                as={TextField}
-                margin="normal"
-                required
-                fullWidth
-                label="Pacjent"
-              />
-              <Field
-                name="doctor"
-                as={TextField}
-                select
-                margin="normal"
-                required
-                fullWidth
-                label="Lekarz"
-              >
-                {doctors.map((doctor) => (
-                  <MenuItem key={doctor._id} value={doctor._id}>
-                    {doctor.name} - {doctor.specialization}
-                  </MenuItem>
-                ))}
-              </Field>
-              <Field
-                name="purpose"
-                as={TextField}
-                margin="normal"
-                required
-                fullWidth
-                label="Cel wizyty"
-                multiline
-                rows={4}
-              />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3 }}
-                disabled={isSubmitting}
-              >
-                Dodaj wizytę
-              </Button>
-            </Form>
+          {status.message && (
+            <Alert severity={status.type} sx={{ mt: 2, width: '100%', mb: 2 }}>
+              {status.message}
+            </Alert>
           )}
-        </Formik>
-      </Box>
-    </Container>
+
+          <Formik
+            initialValues={{
+              visitDate: null,
+              visitTime: null,
+              doctor: '',
+              patient: '',
+              purpose: ''
+            }}
+            onSubmit={handleSubmit}
+          >
+            {({ values, setFieldValue, isSubmitting }) => (
+              <Form style={{ width: '100%' }}>
+                <DatePicker
+                  label="Data wizyty"
+                  value={values.visitDate}
+                  onChange={(date) => setFieldValue('visitDate', date)}
+                  renderInput={(params) => (
+                    <TextField {...params} fullWidth margin="normal" required />
+                  )}
+                  minDate={new Date()}
+                />
+                
+                <TimePicker
+                  label="Godzina wizyty"
+                  value={values.visitTime}
+                  onChange={(time) => setFieldValue('visitTime', time)}
+                  renderInput={(params) => (
+                    <TextField {...params} fullWidth margin="normal" required />
+                  )}
+                />
+
+                <Field
+                  name="doctor"
+                  as={TextField}
+                  select
+                  margin="normal"
+                  required
+                  fullWidth
+                  label="Lekarz"
+                >
+                  {doctors.map((doctor) => (
+                    <MenuItem key={doctor._id} value={doctor._id}>
+                      {doctor.doctorName} - {doctor.specialization}
+                    </MenuItem>
+                  ))}
+                </Field>
+
+                <Field
+                  name="patient"
+                  as={TextField}
+                  margin="normal"
+                  required
+                  fullWidth
+                  label="Pacjent"
+                />
+
+                <Field
+                  name="purpose"
+                  as={TextField}
+                  margin="normal"
+                  required
+                  fullWidth
+                  label="Cel wizyty"
+                  multiline
+                  rows={4}
+                />
+
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  sx={{ mt: 3 }}
+                  disabled={isSubmitting}
+                >
+                  Dodaj wizytę
+                </Button>
+              </Form>
+            )}
+          </Formik>
+        </Box>
+      </Container>
+    </LocalizationProvider>
   );
 };
 

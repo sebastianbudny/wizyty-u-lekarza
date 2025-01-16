@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
-import DoctorService from '../../../services/DoctorService.js';
+import DoctorService from '../../../services/DoctorService';
 
 const UpdateDoctor = () => {
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ const UpdateDoctor = () => {
   useEffect(() => {
     const fetchDoctor = async () => {
       try {
-        const response = await DoctorService.getDoctor(id);
+        const response = await DoctorService.viewOneDoctor(id);
         setDoctor(response.data);
       } catch (error) {
         setStatus({
@@ -27,7 +27,7 @@ const UpdateDoctor = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      await userService.updateDoctor(id, values);
+      await DoctorService.updateDoctor(id, values);
       setStatus({
         type: 'success',
         message: 'Pomyślnie zaktualizowano dane lekarza'
@@ -36,7 +36,7 @@ const UpdateDoctor = () => {
     } catch (err) {
       setStatus({
         type: 'error',
-        message: err.response?.data?.message || 'Błąd aktualizacji danych'
+        message: err.response?.data?.message || 'Błąd aktualizacji'
       });
     } finally {
       setSubmitting(false);
@@ -62,17 +62,15 @@ const UpdateDoctor = () => {
 
         <Formik
           initialValues={{
-            name: doctor.name,
-            specialization: doctor.specialization,
-            email: doctor.email,
-            phone: doctor.phone
+            doctorName: doctor.doctorName,
+            specialization: doctor.specialization
           }}
           onSubmit={handleSubmit}
         >
           {({ isSubmitting }) => (
             <Form style={{ width: '100%' }}>
               <Field
-                name="name"
+                name="doctorName"
                 as={TextField}
                 margin="normal"
                 required
@@ -87,23 +85,6 @@ const UpdateDoctor = () => {
                 fullWidth
                 label="Specjalizacja"
               />
-              <Field
-                name="email"
-                as={TextField}
-                margin="normal"
-                required
-                fullWidth
-                label="Email"
-                type="email"
-              />
-              <Field
-                name="phone"
-                as={TextField}
-                margin="normal"
-                required
-                fullWidth
-                label="Telefon"
-              />
               <Button
                 type="submit"
                 fullWidth
@@ -111,7 +92,7 @@ const UpdateDoctor = () => {
                 sx={{ mt: 3 }}
                 disabled={isSubmitting}
               >
-                Aktualizuj dane
+                Zaktualizuj dane
               </Button>
             </Form>
           )}

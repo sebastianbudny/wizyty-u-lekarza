@@ -12,6 +12,53 @@ function isValidDate(date) {
     return moment(date, 'YYYY-MM-DD', true).isValid();
 }
 
+//Trasa dla pobrania wszystkich wizyt
+router.get('/view-all-visits', protect, async (request, response) => {
+    try {
+        const isUserReg = await isRegistrar(request.user._id);
+                
+        if (!isUserReg) {
+            return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
+        }
+
+        const readVisits = await Visit.find({});
+        return response.status(200).json(readVisits);
+    } catch (error) {
+        console.log(error.message);
+        response.status(500).send({message: error.message});
+    }
+});
+
+//Trasa dla pobrania jednej wizyty
+router.get('/view-one-visit/:_id', protect, async (request, response) => {
+    try {
+        const isUserReg = await isRegistrar(request.user._id);
+                
+        if (!isUserReg) {
+            return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
+        }
+
+        const { _id: idFromURL } = request.params;
+
+        //Walidacja _id z URL
+        if (!mongoose.Types.ObjectId.isValid(idFromURL)) {
+            return response.status(404).json({ message: 'Nie znaleziono wizyty - niepoprawne ID' });
+        }
+              
+        const readVisit = await Visit.findById({_id: idFromURL});
+        if (!readVisit) {
+            return response.status(404).send({
+                message: 'Nie znaleziono Wizyty po _id do wyświetlenia'
+            });
+        }
+
+        return response.status(200).json(readVisit);
+    } catch (error) {
+        console.log(error.message);
+        response.status(500).send({message: error.message});
+    }
+});
+
 //Trasa dla dodawania wizyty
 router.post('/add-visit', protect, async (request, response) => {
     try {
@@ -88,53 +135,6 @@ router.post('/add-visit', protect, async (request, response) => {
         //Zapisanie wizyty
         const createVisit = await newVisit.save();
         return response.status(201).send(createVisit);
-    } catch (error) {
-        console.log(error.message);
-        response.status(500).send({message: error.message});
-    }
-});
-
-//Trasa dla pobrania wszystkich wizyt
-router.get('/view-all-visits', protect, async (request, response) => {
-    try {
-        const isUserReg = await isRegistrar(request.user._id);
-                
-        if (!isUserReg) {
-            return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
-        }
-
-        const readVisits = await Visit.find({});
-        return response.status(200).json(readVisits);
-    } catch (error) {
-        console.log(error.message);
-        response.status(500).send({message: error.message});
-    }
-});
-
-//Trasa dla pobrania jednej wizyty
-router.get('/view-one-visit/:_id', protect, async (request, response) => {
-    try {
-        const isUserReg = await isRegistrar(request.user._id);
-                
-        if (!isUserReg) {
-            return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
-        }
-
-        const { _id: idFromURL } = request.params;
-
-        //Walidacja _id z URL
-        if (!mongoose.Types.ObjectId.isValid(idFromURL)) {
-            return response.status(404).json({ message: 'Nie znaleziono wizyty - niepoprawne ID' });
-        }
-              
-        const readVisit = await Visit.findById({_id: idFromURL});
-        if (!readVisit) {
-            return response.status(404).send({
-                message: 'Nie znaleziono Wizyty po _id do wyświetlenia'
-            });
-        }
-
-        return response.status(200).json(readVisit);
     } catch (error) {
         console.log(error.message);
         response.status(500).send({message: error.message});

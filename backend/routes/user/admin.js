@@ -9,7 +9,7 @@ dotenv.config();
 
 const router = express.Router();
 
-// Trasa pobierająca wysztkich rejestratorów
+//Trasa pobierająca wysztkich rejestratorów
 router.get('/view-all-registrars', protect, async (request, response) => {
     try {
 
@@ -28,6 +28,36 @@ router.get('/view-all-registrars', protect, async (request, response) => {
         response.status(500).send({message: error.message});
     }
 });
+
+//Trasa do pobierania jednego rejestratora
+router.get('/view-one-registrar/:_id', protect, async (request, response) => {
+  try {
+      const isUserAdmin = await isAdmin(request.user._id);
+
+      if (!isUserAdmin) {
+        return response.status(403).json({ message: 'Brak uprawnień administratora' });
+      }
+
+      const { _id: idFromURL } = request.params;
+
+      //Walidacja _id z URL
+      if (!mongoose.Types.ObjectId.isValid(idFromURL)) {
+        return response.status(404).json({ message: 'Nie znaleziono rejestratora - niepoprawne ID' });
+      }
+
+      const readRegistrar = await User.findById({_id: idFromURL});
+      if (readRegistrar !== 'registrar') {
+        return response.status(400).json({ message: 'Podany użytkownik nie jest rejestratorem' });
+      }
+
+      return response.status(200).json(readRegistrar);
+  } catch (error) {
+      console.log(error.message);
+      response.status(500).send({message: error.message});
+  }
+}); 
+
+
 
 //Trasa do blokowania użytkowników przez administratora
 router.put('/block-registrar/:_id', protect, async (request, response) => {

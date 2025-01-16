@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button, Container, Typography, Box, Alert, Dialog, 
-  DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
-import DoctorService from '../../../services/DoctorService.js';
+import { Dialog, DialogActions, DialogContent, DialogContentText, 
+  DialogTitle, Button, Container, Alert } from '@mui/material';
+import DoctorService from '../../../services/DoctorService';
 
 const DeleteDoctor = () => {
   const navigate = useNavigate();
@@ -26,35 +26,23 @@ const DeleteDoctor = () => {
     }
   };
 
-  const handleClose = () => {
-    setOpen(false);
-    navigate('/doctors');
-  };
-
   return (
-    <Container maxWidth="sm">
+    <Container>
       {status.message && (
         <Alert severity={status.type} sx={{ mt: 2 }}>
           {status.message}
         </Alert>
       )}
-      <Dialog
-        open={open}
-        onClose={handleClose}
-      >
-        <DialogTitle>
-          Potwierdź usunięcie
-        </DialogTitle>
+      <Dialog open={open} onClose={() => navigate('/doctors')}>
+        <DialogTitle>Potwierdź usunięcie</DialogTitle>
         <DialogContent>
           <DialogContentText>
             Czy na pewno chcesz usunąć tego lekarza? Tej operacji nie można cofnąć.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Anuluj</Button>
-          <Button onClick={handleDelete} color="error">
-            Usuń
-          </Button>
+          <Button onClick={() => navigate('/doctors')}>Anuluj</Button>
+          <Button onClick={handleDelete} color="error">Usuń</Button>
         </DialogActions>
       </Dialog>
     </Container>

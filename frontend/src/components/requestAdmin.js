@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
-import UserService from '../services/UserService.js';
+import UserService from '../services/UserService';
 
 const RequestAdmin = () => {
   const navigate = useNavigate();
@@ -17,7 +17,11 @@ const RequestAdmin = () => {
       });
 
       //Automatyczne otwarcie maila w ethereal w nowej karcie
-      setTimeout(() => { if (response.data.previewUrl) window.open(response.data.previewUrl, '_blank'); }, 3000);
+      if (response.data.previewUrl) {
+        setTimeout(() => {
+          window.open(response.data.previewUrl, '_blank');
+        }, 3000);
+      }
 
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
@@ -33,7 +37,7 @@ const RequestAdmin = () => {
   return (
     <Container maxWidth="sm">
       <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Typography component="h1" variant="h5" className="form-title">
+        <Typography variant="h5" className="form-title">
           Wniosek o uprawnienia administratora
         </Typography>
 
@@ -81,7 +85,6 @@ const RequestAdmin = () => {
               />
 
               <Button
-                className="btn-primary"
                 type="submit"
                 fullWidth
                 variant="contained"

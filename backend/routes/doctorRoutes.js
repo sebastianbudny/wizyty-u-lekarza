@@ -6,6 +6,47 @@ import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+//Trasa do pobierania wszystkich lekarzy
+router.get('/view-all-doctors', protect, async (request, response) => {
+    try {
+        const isUserReg = await isRegistrar(request.user._id);
+                
+        if (!isUserReg) {
+            return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
+        }
+
+        const allDoctors = await Doctor.find({});
+        return response.status(200).json(allDoctors);
+    } catch (error) {
+        console.log(error.message);
+        response.status(500).send({message: error.message});
+    }
+});
+
+//Trasa do pobierania jednego lekarza
+router.get('/view-one-doctor/:_id', protect, async (request, response) => {
+    try {
+        const isUserReg = await isRegistrar(request.user._id);
+                
+        if (!isUserReg) {
+            return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
+        }
+
+        const { _id: idFromURL } = request.params;
+
+        //Walidacja _id z URL
+        if (!mongoose.Types.ObjectId.isValid(idFromURL)) {
+            return response.status(404).json({ message: 'Nie znaleziono lekarza - niepoprawne ID' });
+        }
+
+        const readDoctor = await Doctor.findById({_id: idFromURL});
+        return response.status(200).json(readDoctor);
+    } catch (error) {
+        console.log(error.message);
+        response.status(500).send({message: error.message});
+    }
+});
+
 //Trasa do dodawania lekarza
 router.post('/add-doctor', protect, async (request, response) => {
     try {
@@ -52,47 +93,6 @@ router.post('/add-doctor', protect, async (request, response) => {
         //Zapisanie lekarza
         const createdDoctor = await newDoctor.save();
         return response.status(201).send(createdDoctor);
-    } catch (error) {
-        console.log(error.message);
-        response.status(500).send({message: error.message});
-    }
-});
-
-//Trasa do pobierania wszystkich lekarzy
-router.get('/view-all-doctors', protect, async (request, response) => {
-    try {
-        const isUserReg = await isRegistrar(request.user._id);
-                
-        if (!isUserReg) {
-            return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
-        }
-
-        const allDoctors = await Doctor.find({});
-        return response.status(200).json(allDoctors);
-    } catch (error) {
-        console.log(error.message);
-        response.status(500).send({message: error.message});
-    }
-});
-
-//Trasa do pobierania jednego lekarza
-router.get('/view-one-doctor/:_id', protect, async (request, response) => {
-    try {
-        const isUserReg = await isRegistrar(request.user._id);
-                
-        if (!isUserReg) {
-            return response.status(403).json({ message: 'Brak uprawnień rejestratora' });
-        }
-
-        const { _id: idFromURL } = request.params;
-
-        //Walidacja _id z URL
-        if (!mongoose.Types.ObjectId.isValid(idFromURL)) {
-            return response.status(404).json({ message: 'Nie znaleziono lekarza - niepoprawne ID' });
-        }
-
-        const readDoctor = await Doctor.findById({_id: idFromURL});
-        return response.status(200).json(readDoctor);
     } catch (error) {
         console.log(error.message);
         response.status(500).send({message: error.message});

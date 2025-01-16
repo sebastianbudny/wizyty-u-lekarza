@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
-import UserService from '../services/UserService.js';
+import UserService from '../services/UserService';
 
 const ForgotPassword = () => {
   const [status, setStatus] = useState({ type: '', message: '' });
@@ -16,7 +16,11 @@ const ForgotPassword = () => {
       });
 
       //Automatyczne otwarcie maila w ethereal w nowej karcie
-      setTimeout(() => { if (response.data.previewUrl) window.open(response.data.previewUrl, '_blank'); }, 3000);
+      if (response.data.previewUrl) {
+        setTimeout(() => {
+          window.open(response.data.previewUrl, '_blank');
+        }, 3000);
+      }
 
     } catch (err) {
       setStatus({

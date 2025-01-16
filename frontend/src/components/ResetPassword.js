@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
-import { resetPasswordSchema } from '../utils/ValidationSchemas.js';
-import UserService from '../services/UserService.js';
+import { resetPasswordSchema } from '../utils/ValidationSchemas';
+import UserService from '../services/UserService';
 
 const ResetPassword = () => {
   const navigate = useNavigate();

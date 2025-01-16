@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_URL } from '../config.js';
+import { API_URL } from '../config';
 
 const apiURLUsers = `${API_URL}/users`;
 
@@ -8,8 +8,9 @@ const UserService = {
     const response = await axios.post(`${apiURLUsers}/login`, credentials);
     if (response.data.token) {
       localStorage.setItem('user', JSON.stringify(response.data));
+      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
     }
-    return response.data;
+    return response;
   },
 
   logout: () => {

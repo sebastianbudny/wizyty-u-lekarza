@@ -1,65 +1,45 @@
-import React, { useState } from 'react';
-import { Menu, MenuItem, Button } from '@mui/material';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Menu, MenuItem, Button } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
-const DropdownMenu = ({ title, menuItems }) => {
+const DropdownMenu = ({ title, menuItems, isActive, onActivate, onClose }) => {
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
-  const handleMouseEnter = (event) => {
+  const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
+    onActivate();
   };
 
-  const handleMouseLeave = () => {
+  const handleClose = () => {
     setAnchorEl(null);
+    onClose();
   };
 
-  const handleClick = (path) => {
+  const handleMenuItemClick = (path) => {
     navigate(path);
-    setAnchorEl(null);
+    handleClose();
   };
 
   return (
-    <div onMouseLeave={handleMouseLeave}>
+    <div>
       <Button
         color="inherit"
-        onMouseEnter={handleMouseEnter}
+        onClick={handleClick}
         endIcon={<KeyboardArrowDownIcon />}
-        sx={{
-          '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-          }
-        }}
       >
         {title}
       </Button>
       <Menu
         anchorEl={anchorEl}
-        open={open}
-        onClose={() => setAnchorEl(null)}
-        MenuListProps={{
-          onMouseLeave: handleMouseLeave
-        }}
-        sx={{
-          '& .MuiPaper-root': {
-            marginTop: '8px',
-            minWidth: '200px',
-            boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)'
-          }
-        }}
+        open={isActive && Boolean(anchorEl)}
+        onClose={handleClose}
       >
         {menuItems.map((item) => (
           <MenuItem
             key={item.path}
-            onClick={() => handleClick(item.path)}
-            sx={{
-              padding: '10px 20px',
-              '&:hover': {
-                backgroundColor: '#f5f5f5'
-              }
-            }}
+            onClick={() => handleMenuItemClick(item.path)}
           >
             {item.label}
           </MenuItem>

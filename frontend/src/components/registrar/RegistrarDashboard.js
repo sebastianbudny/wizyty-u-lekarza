@@ -1,22 +1,39 @@
-import React, { useEffect, useState } from 'react';
-import { Container, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import DoctorService from '../../services/DoctorService.js';
+import React, { useState, useEffect } from 'react';
+import { Container, Typography, Paper, Table, TableBody, TableCell, 
+  TableContainer, TableHead, TableRow } from '@mui/material';
+import VisitService from '../../services/VisitService';
+import DoctorService from '../../services/DoctorService';
 
 const RegistrarDashboard = () => {
   const [visits, setVisits] = useState([]);
+  const [doctors, setDoctors] = useState({});
 
   useEffect(() => {
     const fetchVisits = async () => {
       try {
-        const response = await DoctorService.getAllVisits();
+        const response = await VisitService.viewAllVisits();
         setVisits(response.data);
+        
+        // Fetch doctor details for each visit
+        const doctorsData = {};
+        for (const visit of response.data) {
+          if (visit.doctor && !doctorsData[visit.doctor]) {
+            const doctorResponse = await DoctorService.viewOneDoctor(visit.doctor);
+            doctorsData[visit.doctor] = doctorResponse.data;
+          }
+        }
+        setDoctors(doctorsData);
       } catch (error) {
-        console.error('Error fetching visits:', error);
+        console.error('Error fetching data:', error);
       }
     };
-
     fetchVisits();
   }, []);
+
+  const getDoctorInfo = (doctorId) => {
+    const doctor = doctors[doctorId];
+    return doctor ? `${doctor.doctorName} - ${doctor.specialization}` : 'Ładowanie...';
+  };
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
@@ -40,7 +57,7 @@ const RegistrarDashboard = () => {
                 <TableCell>{new Date(visit.visitDate).toLocaleDateString()}</TableCell>
                 <TableCell>{visit.visitTime}</TableCell>
                 <TableCell>{visit.patient}</TableCell>
-                <TableCell>{visit.doctor.doctorName}</TableCell>
+                <TableCell>{getDoctorInfo(visit.doctor)}</TableCell>
                 <TableCell>{visit.purpose}</TableCell>
               </TableRow>
             ))}

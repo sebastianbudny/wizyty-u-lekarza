@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
-import UserService from '../services/UserService.js';
+import UserService from '../services/UserService';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -10,8 +10,28 @@ const Login = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      await UserService.login(values);
-      navigate('/dashboard');
+      const response = await UserService.login({
+        emailOrUsername: values.emailOrUsername,
+        password: values.password
+      });
+      
+      const user = response.data;
+      
+      switch (user.role) {
+        case 'registrar':
+          navigate('/registrar-dashboard');
+          break;
+        case 'admin':
+          navigate('/admin-dashboard');
+          break;
+        case 'superadmin':
+          navigate('/superadmin-dashboard');
+          break;
+        default:
+          setError('Brak uprawnień do systemu');
+          UserService.logout();
+          break;
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Błąd logowania');
     } finally {

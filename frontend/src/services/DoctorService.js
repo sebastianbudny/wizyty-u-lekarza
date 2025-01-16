@@ -1,22 +1,22 @@
 import axios from 'axios';
-import { API_URL } from '../config.js';
+import { API_URL } from '../config';
 
 const apiURLDoctors = `${API_URL}/doctors`;
 
-// zwraca token zalogowanego użytkownika
+//Zwraca token zalogowanego użytkownika
 const authHeader = () => {
     const user = JSON.parse(localStorage.getItem('user'));
     return user?.token ? { Authorization: `Bearer ${user.token}` } : {};
   };
 
   const DoctorService = {
-    getAllDoctors: async () => {
+    viewAllDoctors: async () => {
       return axios.get(`${apiURLDoctors}/view-all-doctors`, {
         headers: authHeader()
       });
     },
   
-    getDoctor: async (id) => {
+    viewOneDoctor: async (id) => {
       return axios.get(`${apiURLDoctors}/view-one-doctor/${id}`, {
         headers: authHeader()
       });

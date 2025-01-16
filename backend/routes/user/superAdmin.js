@@ -83,12 +83,10 @@ router.post('/admin-request-approve/:id', protect, async (request, response) => 
     }
   });
 
-// Trasa służąca do wyświetlenia wszystkich wniosków o konto administratora
-router.get('/admin-requests', protect, async (request, response) => {
+//Trasa służąca do wyświetlenia wszystkich wniosków o konto administratora
+router.get('/view-all-admin-requests', protect, async (request, response) => {
     try {
         const isUserSuperAdmin = await isSuperAdmin(request.user._id);
-
-        console.log(isUserSuperAdmin);
         
         if (!isUserSuperAdmin) {
             return response.status(403).json({ message: 'Brak uprawnień Super administratora' });
@@ -98,10 +96,38 @@ router.get('/admin-requests', protect, async (request, response) => {
       return response.status(200).json(readAdminRequests);
   
     } catch (error) {
-      console.error(error);
-      response.status(500).json({ message: 'Błąd serwera' });
+        console.error(error);
+        response.status(500).json({ message: 'Błąd serwera' });
     }
   });
+
+//Trasa służąca do wyświetlenia jednego wniosku o konto administratora
+router.get('/view-one-admin-request/:_id', protect, async (request, response) => {
+    try {
+        const isUserSuperAdmin = await isSuperAdmin(request.user._id);
+        
+        if (!isUserSuperAdmin) {
+            return response.status(403).json({ message: 'Brak uprawnień Super administratora' });
+        }
+
+        const { _id: idFromURL } = request.params;
+        
+        // Walidacja _id z URL
+        if (!mongoose.Types.ObjectId.isValid(idFromURL)) {
+            return response.status(404).json({ message: 'Nie znaleziono wniosku o konto administratora - niepoprawne ID' });
+        }
+
+        const readAdminRequest = await User.findById({_id: idFromURL});
+        if (readAdminRequest.role !== 'admin' || readAdminRequest.approvedBySuperAdmin === true) {
+            return response.status(400).json({ message: 'Ten użytkownik nie złożył wniosku o konto administratora lub jego wniosek został już zatwierdzony' });
+        }
+
+        return response.status(200).json(readAdminRequest);
+    } catch (error) {
+        console.error(error.message);
+        response.status(500).json({ message: error.message });
+    }
+});
 
 // Trasa służąca do wyświetlenia wszystkich kont administratorów (aktywnych i nieaktywnych) nie licząc niezatwierdzonych wniosków
 router.get('/view-all-admins', protect, async (request, response) => {
@@ -116,10 +142,39 @@ router.get('/view-all-admins', protect, async (request, response) => {
       return response.status(200).json(allAdmins);
   
     } catch (error) {
-      console.error(error);
-      response.status(500).json({ message: 'Błąd serwera' });
+        console.error(error);
+        response.status(500).json({ message: 'Błąd serwera' });
     }
   });
+
+// Trasa służąca do wyświetlenia jednego konta administratora
+router.get('/view-one-admin/:_id', protect, async (request, response) => {
+    try {
+        const isUserSuperAdmin = await isSuperAdmin(request.user._id);
+
+        if (!isUserSuperAdmin) {
+            return response.status(403).json({ message: 'Brak uprawnień Super administratora' });
+        }
+
+      const { _id: idFromURL } = request.params;
+
+      // Walidacja _id z URL
+      if (!mongoose.Types.ObjectId.isValid(idFromURL)) {
+        return response.status(404).json({ message: 'Nie znaleziono administratora - niepoprawne ID' });
+      }
+
+      const readAdmin = await User.findById({_id: idFromURL});
+      if (readAdmin.role !== 'admin' || readAdmin.approvedBySuperAdmin === false) {
+        return response.status(400).json({ message: 'Ten użytkownik nie jest administratorem lub jego konto nie zostało zatwierdzone przez Super administratora.' });
+      }
+
+      return response.status(200).json(readAdmin);
+    } catch (error) {
+      console.error(error.message);
+      response.status(500).json({ message: error.message });
+    }
+  });
+
 
   // Trasa służąca do zablokowania konta administratora
 router.put('/block-admin/:_id', protect, async (request, response) => {

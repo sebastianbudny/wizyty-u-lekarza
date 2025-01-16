@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
-import { registerSchema } from '../utils/ValidationSchemas.js';
-import UserService from '../services/UserService.js';
+import { registerSchema } from '../utils/ValidationSchemas';
+import UserService from '../services/UserService';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -18,7 +18,11 @@ const Register = () => {
       });
       
       //Automatyczne otwarcie maila w ethereal w nowej karcie
-      setTimeout(() => { if (response.data.previewUrl) window.open(response.data.previewUrl, '_blank'); }, 3000);
+      if (response.data.previewUrl) {
+        setTimeout(() => {
+          window.open(response.data.previewUrl, '_blank');
+        }, 3000);
+      }
 
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
