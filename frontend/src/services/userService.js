@@ -15,6 +15,16 @@ const UserService = {
 
   logout: () => {
     localStorage.removeItem('user');
+    delete axios.defaults.headers.common['Authorization'];
+  },
+
+  setupToken: () => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user && user.token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${user.token}`;
+      return true;
+    }
+    return false;
   },
 
   register: async (userData) => {

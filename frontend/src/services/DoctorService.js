@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { API_URL } from '../config';
+import UserService from './UserService';
 
 const apiURLDoctors = `${API_URL}/doctors`;
 
@@ -9,36 +10,54 @@ const authHeader = () => {
     return user?.token ? { Authorization: `Bearer ${user.token}` } : {};
   };
 
-  const DoctorService = {
-    viewAllDoctors: async () => {
-      return axios.get(`${apiURLDoctors}/view-all-doctors`, {
-        headers: authHeader()
-      });
-    },
-  
-    viewOneDoctor: async (id) => {
-      return axios.get(`${apiURLDoctors}/view-one-doctor/${id}`, {
-        headers: authHeader()
-      });
-    },
-  
-    addDoctor: async (doctorData) => {
-      return axios.post(`${apiURLDoctors}/add-doctor`, doctorData, {
-        headers: authHeader()
-      });
-    },
-  
-    updateDoctor: async (id, doctorData) => {
-      return axios.put(`${apiURLDoctors}/update-doctor/${id}`, doctorData, {
-        headers: authHeader()
-      });
-    },
-  
-    deleteDoctor: async (id) => {
-      return axios.delete(`${apiURLDoctors}/delete_doctor/${id}`, {
-        headers: authHeader()
-      });
+const errorHandler = (error) => {
+    if (error.response?.status === 401) {
+      UserService.logout();
+      window.location.href = '/login';
     }
-  };
+    throw error;
+};
+
+const DoctorService = {
+    viewAllDoctors: async () => {
+        try {
+          return await axios.get(`${apiURLDoctors}/view-all-doctors`, { headers: authHeader() });
+        } catch (error) {
+          return errorHandler(error);
+        }
+      },
+    
+      viewOneDoctor: async (id) => {
+        try {
+          return await axios.get(`${apiURLDoctors}/view-one-doctor/${id}`, { headers: authHeader() });
+        } catch (error) {
+          return errorHandler(error);
+        }
+      },
+    
+      addDoctor: async (doctorData) => {
+        try {
+          return await axios.post(`${apiURLDoctors}/add-doctor`, doctorData, { headers: authHeader() });
+        } catch (error) {
+          return errorHandler(error);
+        }
+      },
+    
+      updateDoctor: async (id, doctorData) => {
+        try {
+          return await axios.put(`${apiURLDoctors}/update-doctor/${id}`, doctorData, { headers: authHeader() });
+        } catch (error) {
+          return errorHandler(error);
+        }
+      },
+    
+      deleteDoctor: async (id) => {
+        try {
+          return await axios.delete(`${apiURLDoctors}/delete_doctor/${id}`, { headers: authHeader() });
+        } catch (error) {
+          return errorHandler(error);
+        }
+      }
+};
   
-  export default DoctorService;
+export default DoctorService;

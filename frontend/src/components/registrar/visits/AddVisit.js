@@ -1,14 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
-import { TextField, Button, Container, Typography, Box, Alert, MenuItem } from '@mui/material';
+import { 
+  TextField, 
+  Button, 
+  Container, 
+  Typography, 
+  Box, 
+  Alert, 
+  MenuItem, 
+  FormControl, 
+  InputLabel, 
+  Select 
+} from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import pl from 'date-fns/locale/pl';
+import moment from 'moment';
 import VisitService from '../../../services/VisitService';
 import DoctorService from '../../../services/DoctorService';
+
+const validHours = ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"];
 
 const AddVisit = () => {
   const navigate = useNavigate();
@@ -29,12 +42,17 @@ const AddVisit = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      await VisitService.addVisit(values);
+      const formattedValues = {
+        ...values,
+        visitDate: values.visitDate ? moment(values.visitDate).format('YYYY-MM-DD') : null
+      };
+
+      await VisitService.addVisit(formattedValues);
       setStatus({
         type: 'success',
         message: 'Pomyślnie dodano wizytę'
       });
-      setTimeout(() => navigate('/visits'), 2000);
+      setTimeout(() => navigate('/registrar-dashboard'), 2000);
     } catch (err) {
       setStatus({
         type: 'error',
@@ -62,8 +80,8 @@ const AddVisit = () => {
           <Formik
             initialValues={{
               visitDate: null,
-              visitTime: null,
-              doctor: '',
+              visitTime: '',
+              idDoctor: '',
               patient: '',
               purpose: ''
             }}
@@ -71,40 +89,61 @@ const AddVisit = () => {
           >
             {({ values, setFieldValue, isSubmitting }) => (
               <Form style={{ width: '100%' }}>
-                <DatePicker
-                  label="Data wizyty"
-                  value={values.visitDate}
-                  onChange={(date) => setFieldValue('visitDate', date)}
-                  renderInput={(params) => (
-                    <TextField {...params} fullWidth margin="normal" required />
-                  )}
-                  minDate={new Date()}
-                />
-                
-                <TimePicker
-                  label="Godzina wizyty"
-                  value={values.visitTime}
-                  onChange={(time) => setFieldValue('visitTime', time)}
-                  renderInput={(params) => (
-                    <TextField {...params} fullWidth margin="normal" required />
-                  )}
-                />
+                <FormControl fullWidth margin="normal">
+                  <DatePicker
+                    label="Data wizyty"
+                    value={values.visitDate}
+                    onChange={(date) => setFieldValue('visitDate', date)}
+                    renderInput={(params) => (
+                      <TextField 
+                        {...params} 
+                        fullWidth
+                        required
+                        sx={{ 
+                          '& .MuiOutlinedInput-root': { 
+                            width: '100%' 
+                          }
+                        }}
+                      />
+                    )}
+                  />
+                </FormControl>
 
-                <Field
-                  name="doctor"
-                  as={TextField}
-                  select
-                  margin="normal"
-                  required
-                  fullWidth
-                  label="Lekarz"
-                >
-                  {doctors.map((doctor) => (
-                    <MenuItem key={doctor._id} value={doctor._id}>
-                      {doctor.doctorName} - {doctor.specialization}
-                    </MenuItem>
-                  ))}
-                </Field>
+                <FormControl fullWidth margin="normal">
+                  <InputLabel id="time-label">Godzina wizyty</InputLabel>
+                  <Select
+                    labelId="time-label"
+                    value={values.visitTime}
+                    label="Godzina wizyty"
+                    onChange={(e) => setFieldValue('visitTime', e.target.value)}
+                    required
+                    sx={{ textAlign: 'left', '& .MuiSelect-select': { textAlign: 'left' } }}
+                  >
+                    {validHours.map((hour) => (
+                      <MenuItem key={hour} value={hour}>
+                        {hour}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <FormControl fullWidth margin="normal">
+                  <InputLabel id="doctor-label">Lekarz</InputLabel>
+                  <Select
+                    labelId="doctor-label"
+                    value={values.doctor}
+                    label="Lekarz"
+                    onChange={(e) => setFieldValue('idDoctor', e.target.value)}
+                    required
+                    sx={{ textAlign: 'left', '& .MuiSelect-select': { textAlign: 'left' } }}
+                  >
+                    {doctors.map((doctor) => (
+                      <MenuItem key={doctor._id} value={doctor._id}>
+                        {doctor.doctorName} - {doctor.specialization}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
 
                 <Field
                   name="patient"

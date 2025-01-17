@@ -6,20 +6,25 @@ import UserService from '../../services/UserService';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user'));
   const [activeMenu, setActiveMenu] = useState(null);
 
+  const user = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('user'));
+    } catch {
+      return null;
+    }
+  })();
+
   const doctorMenuItems = [
-    { label: 'Wyświetl wszystkich lekarzy', path: '/doctors' },
+    { label: 'Lista lekarzy', path: '/doctors' },
     { label: 'Dodaj lekarza', path: '/doctors/add' },
-    { label: 'Zaktualizuj lekarza', path: '/doctors/update' },
-    { label: 'Usuń lekarza', path: '/doctors/delete' }
+    { label: 'Zarządzaj lekarzami', path: '/doctors/manage' }
   ];
 
   const visitMenuItems = [
     { label: 'Dodaj wizytę', path: '/visits/add' },
-    { label: 'Zaktualizuj wizytę', path: '/visits/update' },
-    { label: 'Usuń wizytę', path: '/visits/delete' }
+    { label: 'Zarządzaj wizytami', path: '/visits/manage' }
   ];
 
   const handleLogout = () => {

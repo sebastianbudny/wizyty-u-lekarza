@@ -1,104 +1,72 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Formik, Form, Field } from 'formik';
-import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
-import DoctorService from '../../../services/DoctorService';
+import React from 'react';
+import { 
+  Dialog, DialogTitle, DialogContent, Grid, TextField, 
+  Button, DialogActions, FormControl, InputLabel, Select, MenuItem 
+} from '@mui/material';
+import { Formik, Form } from 'formik';
+import { allowedSpecializations } from './AddDoctor';
 
-const UpdateDoctor = () => {
-  const navigate = useNavigate();
-  const { id } = useParams();
-  const [doctor, setDoctor] = useState(null);
-  const [status, setStatus] = useState({ type: '', message: '' });
-
-  useEffect(() => {
-    const fetchDoctor = async () => {
-      try {
-        const response = await DoctorService.viewOneDoctor(id);
-        setDoctor(response.data);
-      } catch (error) {
-        setStatus({
-          type: 'error',
-          message: 'Nie udało się pobrać danych lekarza'
-        });
-      }
-    };
-    fetchDoctor();
-  }, [id]);
-
-  const handleSubmit = async (values, { setSubmitting }) => {
-    try {
-      await DoctorService.updateDoctor(id, values);
-      setStatus({
-        type: 'success',
-        message: 'Pomyślnie zaktualizowano dane lekarza'
-      });
-      setTimeout(() => navigate('/doctors'), 2000);
-    } catch (err) {
-      setStatus({
-        type: 'error',
-        message: err.response?.data?.message || 'Błąd aktualizacji'
-      });
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  if (!doctor) {
-    return <Alert severity="info">Ładowanie danych...</Alert>;
-  }
-
+const UpdateDoctor = ({ open, onClose, doctor, onUpdate }) => {
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Typography variant="h4" sx={{ mb: 4 }}>
-          Aktualizuj dane lekarza
-        </Typography>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>Aktualizacja danych lekarza</DialogTitle>
+      <DialogContent>
+        <Grid container spacing={2}>
+          {/* Left side - current data */}
+          <Grid item xs={6}>
+            <h3>Aktualne dane:</h3>
+            <p><strong>Imię i Nazwisko:</strong> {doctor?.doctorName}</p>
+            <p><strong>Specjalizacja:</strong> {doctor?.specialization}</p>
+          </Grid>
 
-        {status.message && (
-          <Alert severity={status.type} sx={{ mt: 2, width: '100%', mb: 2 }}>
-            {status.message}
-          </Alert>
-        )}
+          {/* Right side - update form */}
+          <Grid item xs={6}>
+            <h3>Nowe dane:</h3>
+            <Formik
+              initialValues={{
+                doctorName: doctor?.doctorName || '',
+                specialization: doctor?.specialization || ''
+              }}
+              onSubmit={(values) => onUpdate(doctor._id, values)}
+            >
+              {({ values, setFieldValue }) => (
+                <Form>
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Imię i Nazwisko"
+                    value={values.doctorName}
+                    onChange={(e) => setFieldValue('doctorName', e.target.value)}
+                  />
 
-        <Formik
-          initialValues={{
-            doctorName: doctor.doctorName,
-            specialization: doctor.specialization
-          }}
-          onSubmit={handleSubmit}
-        >
-          {({ isSubmitting }) => (
-            <Form style={{ width: '100%' }}>
-              <Field
-                name="doctorName"
-                as={TextField}
-                margin="normal"
-                required
-                fullWidth
-                label="Imię i Nazwisko"
-              />
-              <Field
-                name="specialization"
-                as={TextField}
-                margin="normal"
-                required
-                fullWidth
-                label="Specjalizacja"
-              />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3 }}
-                disabled={isSubmitting}
-              >
-                Zaktualizuj dane
-              </Button>
-            </Form>
-          )}
-        </Formik>
-      </Box>
-    </Container>
+                  <FormControl fullWidth margin="normal">
+                    <InputLabel>Specjalizacja</InputLabel>
+                    <Select
+                      value={values.specialization}
+                      label="Specjalizacja"
+                      onChange={(e) => setFieldValue('specialization', e.target.value)}
+                    >
+                      {allowedSpecializations.map((spec) => (
+                        <MenuItem key={spec} value={spec}>
+                          {spec}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  <DialogActions>
+                    <Button onClick={onClose}>Anuluj</Button>
+                    <Button type="submit" variant="contained" color="primary">
+                      Zapisz zmiany
+                    </Button>
+                  </DialogActions>
+                </Form>
+              )}
+            </Formik>
+          </Grid>
+        </Grid>
+      </DialogContent>
+    </Dialog>
   );
 };
 
