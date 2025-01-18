@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { API_URL } from '../config';
+import UserService from './UserService';
 
 const apiURLAdmins = `${API_URL}/users`;
 
@@ -9,48 +10,70 @@ const authHeader = () => {
     return user?.token ? { Authorization: `Bearer ${user.token}` } : {};
 };
 
+const errorHandler = (error) => {
+    if (error.response?.status === 401) {
+      UserService.logout();
+      window.location.href = '/login';
+    }
+    throw error;
+};
+
 const SuperAdminService = {
     approveAdminRequest: async (id) => {
-        return axios.post(`${apiURLAdmins}/admin-request-approve/${id}`, {}, {
-            headers: authHeader()
-        });
+        try {
+            return await axios.post(`${apiURLAdmins}/admin-request-approve/${id}`, {}, { headers: authHeader() });
+        } catch (error) {
+            return errorHandler(error);
+        }
     },
 
     viewAllAdminRequests: async () => {
-        return axios.get(`${apiURLAdmins}/view-all-admin-requests`, {
-            headers: authHeader()
-        });
+        try {
+          return await axios.get(`${apiURLAdmins}/view-all-admin-requests`, { headers: authHeader() });
+        } catch (error) {
+          return errorHandler(error);
+        }
     },
-
+    
     viewOneAdminRequest: async (id) => {
-        return axios.get(`${apiURLAdmins}/view-one-admin-request/${id}`, {
-            headers: authHeader()
-        });
+        try {
+          return await axios.get(`${apiURLAdmins}/view-one-admin-request/${id}`, { headers: authHeader() });
+        } catch (error) {
+          return errorHandler(error);
+        }
     },
 
     viewAllAdmins: async () => {
-        return axios.get(`${apiURLAdmins}/view-all-admins`, {
-            headers: authHeader()
-        });
+        try {
+          return await axios.get(`${apiURLAdmins}/view-all-admins`, { headers: authHeader() });
+        } catch (error) {
+          return errorHandler(error);
+        }
     },
-
+    
     viewOneAdmin: async (id) => {
-        return axios.get(`${apiURLAdmins}/view-one-admin/${id}`, {
-            headers: authHeader()
-        });
+        try {
+          return await axios.get(`${apiURLAdmins}/view-one-admin/${id}`, { headers: authHeader() });
+        } catch (error) {
+          return errorHandler(error);
+        }
     },
-
+    
     blockAdmin: async (id) => {
-        return axios.put(`${apiURLAdmins}/block-admin/${id}`, {}, {
-            headers: authHeader()
-        });
+        try {
+            return await axios.put(`${apiURLAdmins}/block-admin/${id}`, {}, { headers: authHeader() });
+        } catch (error) {
+            return errorHandler(error);
+        }
     },
 
     unblockAdmin: async (id) => {
-        return axios.put(`${apiURLAdmins}/unblock-admin/${id}`, {}, {
-            headers: authHeader()
-        });
-    }
+        try {
+            return await axios.put(`${apiURLAdmins}/unblock-admin/${id}`, {}, { headers: authHeader() });
+        } catch (error) {
+            return errorHandler(error);
+        }
+    },
 };
 
 export default SuperAdminService;

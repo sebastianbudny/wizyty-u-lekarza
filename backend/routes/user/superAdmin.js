@@ -57,10 +57,10 @@ router.post('/admin-request-approve/:id', protect, async (request, response) => 
   
       // Wysłanie maila z linkiem do resetu hasła
       const transporter = await emailTransport();
-      const resetUrl = `${request.protocol}://${request.get('host')}/reset-password/${resetToken}`;
+      const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
   
       const info = await transporter.sendMail({
-        from: '"System Administracyjny" <noreply@example.com>',
+        from: '"System do rezerwacji wizyt lekarskich" <noreply@wizytyulekarza.com>',
         to: user.email,
         subject: 'Ustaw hasło dla konta administratora',
         html: `

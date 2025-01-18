@@ -27,9 +27,12 @@ import ManageDoctors from './components/registrar/doctors/ManageDoctors';
 
 //Komponenty panelu administratora
 import AdminDashboard from './components/admin/AdminDashboard';
+import ManageRegistrars from './components/admin/ManageRegistrars';
 
 //Komponenty panelu superadministratora
 import SuperadminDashboard from './components/superadmin/SuperadminDashboard';
+import ManageAdminRequests from './components/superadmin/ManageAdminRequests';
+import ManageAdmins from './components/superadmin/ManageAdmins';
 
 //Serwisy do komunikacji z API
 import UserService from './services/UserService';
@@ -71,9 +74,12 @@ const AppContent = () => {
 
         {/*Trasy dla administratora*/}
         <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/registrars/manage" element={<ProtectedRoute><ManageRegistrars /></ProtectedRoute>} />
 
         {/*Trasy dla superadministratora*/}
         <Route path="/superadmin-dashboard" element={<ProtectedRoute><SuperadminDashboard /></ProtectedRoute>} />
+        <Route path="/admin-requests/manage" element={<ProtectedRoute><ManageAdminRequests /></ProtectedRoute>} />
+        <Route path="/admins/manage" element={<ProtectedRoute><ManageAdmins /></ProtectedRoute>} />
 
         {/*Domyślna trasa*/}
         <Route path="/" element={ <Navigate to="/login" replace />} />

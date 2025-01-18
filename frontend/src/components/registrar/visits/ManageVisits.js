@@ -1,34 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Container, Typography, Paper, Table, TableBody, TableCell, 
-  TableContainer, TableHead, TableRow, Button, Box, Dialog,
-  DialogActions, DialogContent, DialogContentText, DialogTitle,
-  Alert, Snackbar 
+  TableContainer, TableHead, TableRow, Button, Box,
+  Dialog, DialogActions, DialogContent, DialogContentText, 
+  DialogTitle, Alert, Snackbar 
 } from '@mui/material';
 import VisitService from '../../../services/VisitService';
 import DoctorService from '../../../services/DoctorService';
+import UpdateVisit from './UpdateVisit';
 
 const ManageVisits = () => {
   const [visits, setVisits] = useState([]);
   const [doctors, setDoctors] = useState({});
   const [deleteDialog, setDeleteDialog] = useState({ open: false, visitId: null });
+  const [updateDialog, setUpdateDialog] = useState({ open: false, visit: null });
   const [alert, setAlert] = useState({ open: false, message: '', type: 'success' });
+
+  const fetchDoctors = async () => {
+    try {
+      const response = await DoctorService.viewAllDoctors();
+      const doctorsMap = {};
+      response.data.forEach(doctor => {
+        doctorsMap[doctor._id] = doctor;
+      });
+      setDoctors(doctorsMap);
+    } catch (error) {
+      console.error('Error fetching doctors:', error);
+    }
+  };
 
   const fetchVisits = async () => {
     try {
       const response = await VisitService.viewAllVisits();
       setVisits(response.data);
-      
-      const doctorsData = {};
-      for (const visit of response.data) {
-        if (visit.doctor && !doctorsData[visit.doctor]) {
-          const doctorResponse = await DoctorService.viewOneDoctor(visit.doctor);
-          doctorsData[visit.doctor] = doctorResponse.data;
-        }
-      }
-      setDoctors(doctorsData);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error fetching visits:', error);
       setAlert({
         open: true,
         message: 'Błąd podczas pobierania listy wizyt',
@@ -38,16 +44,16 @@ const ManageVisits = () => {
   };
 
   useEffect(() => {
+    fetchDoctors();
     fetchVisits();
   }, []);
 
-  const getDoctorInfo = (doctorId) => {
-    const doctor = doctors[doctorId];
-    return doctor ? `${doctor.doctorName} - ${doctor.specialization}` : 'Ładowanie...';
-  };
-
   const handleDeleteClick = (visitId) => {
     setDeleteDialog({ open: true, visitId });
+  };
+
+  const handleUpdateClick = (visit) => {
+    setUpdateDialog({ open: true, visit });
   };
 
   const handleDeleteConfirm = async () => {
@@ -58,7 +64,7 @@ const ManageVisits = () => {
         message: 'Pomyślnie usunięto wizytę',
         type: 'success'
       });
-      fetchVisits(); // Odświeżenie listy
+      fetchVisits();
     } catch (error) {
       setAlert({
         open: true,
@@ -67,6 +73,30 @@ const ManageVisits = () => {
       });
     }
     setDeleteDialog({ open: false, visitId: null });
+  };
+
+  const handleUpdateVisit = async (id, updatedData) => {
+    try {
+      await VisitService.updateVisit(id, updatedData);
+      setAlert({
+        open: true,
+        message: 'Pomyślnie zaktualizowano wizytę',
+        type: 'success'
+      });
+      fetchVisits();
+      setUpdateDialog({ open: false, visit: null });
+    } catch (error) {
+      setAlert({
+        open: true,
+        message: 'Błąd podczas aktualizacji wizyty',
+        type: 'error'
+      });
+    }
+  };
+
+  const getDoctorInfo = (doctorId) => {
+    const doctor = doctors[doctorId];
+    return doctor ? `${doctor.doctorName} - ${doctor.specialization}` : 'Ładowanie...';
   };
 
   return (
@@ -92,12 +122,17 @@ const ManageVisits = () => {
               <TableRow key={visit._id}>
                 <TableCell>
                   <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Button variant="contained" color="primary" size="small">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                      onClick={() => handleUpdateClick(visit)}
+                    >
                       Aktualizuj
                     </Button>
-                    <Button 
-                      variant="contained" 
-                      color="error" 
+                    <Button
+                      variant="contained"
+                      color="error"
                       size="small"
                       onClick={() => handleDeleteClick(visit._id)}
                     >
@@ -116,7 +151,7 @@ const ManageVisits = () => {
         </Table>
       </TableContainer>
 
-      {/* Dialog potwierdzenia usunięcia */}
+      {/* Delete Confirmation Dialog */}
       <Dialog
         open={deleteDialog.open}
         onClose={() => setDeleteDialog({ open: false, visitId: null })}
@@ -137,7 +172,16 @@ const ManageVisits = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Alert sukcesu/błędu */}
+      {/* Update Visit Dialog */}
+      <UpdateVisit
+        open={updateDialog.open}
+        visit={updateDialog.visit}
+        doctors={doctors}
+        onClose={() => setUpdateDialog({ open: false, visit: null })}
+        onUpdate={handleUpdateVisit}
+      />
+
+      {/* Alert Snackbar */}
       <Snackbar
         open={alert.open}
         autoHideDuration={3000}
