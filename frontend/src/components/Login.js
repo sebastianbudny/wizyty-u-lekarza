@@ -10,6 +10,7 @@ const Login = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
+      setError('');
       const response = await UserService.login({
         emailOrUsername: values.emailOrUsername,
         password: values.password
@@ -29,11 +30,13 @@ const Login = () => {
           break;
         default:
           setError('Brak uprawnień do systemu');
+          setTimeout(() => setError(''), 10000);
           UserService.logout();
           break;
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Błąd logowania');
+      setTimeout(() => setError(''), 10000);
     } finally {
       setSubmitting(false);
     }
@@ -94,7 +97,7 @@ const Login = () => {
                   Zarejestruj się
                 </Link>
                 <Link to="/forgot-password">
-                  Zapomniałeś hasła?
+                  Zapomniał*ś hasła?
                 </Link>
               </Box>
 

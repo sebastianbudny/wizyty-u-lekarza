@@ -49,7 +49,7 @@ const Register = () => {
         )}
 
         <Formik
-          initialValues={{ username: '', email: '', password: '' }}
+          initialValues={{ username: '', email: '', password: '', confirmPassword: '' }}
           validationSchema={registerSchema}
           onSubmit={handleSubmit}
         >
@@ -88,6 +88,18 @@ const Register = () => {
                 type="password"
                 error={touched.password && Boolean(errors.password)}
                 helperText={touched.password && errors.password}
+              />
+
+              <Field
+                name="confirmPassword"
+                as={TextField}
+                margin="normal"
+                required
+                fullWidth
+                label="Powtórz hasło"
+                type="password"
+                error={touched.confirmPassword && Boolean(errors.confirmPassword)}
+                helperText={touched.confirmPassword && errors.confirmPassword}
               />
 
               <Button

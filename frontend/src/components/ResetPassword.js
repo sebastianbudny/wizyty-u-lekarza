@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
@@ -9,6 +9,17 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const { token } = useParams();
   const [status, setStatus] = useState({ type: '', message: '' });
+
+  useEffect(() => {
+    const init = async () => {
+      // Wyloguj tylko jeśli użytkownik jest zalogowany
+      if (localStorage.getItem('user')) {
+        await UserService.logout();
+        window.location.reload();
+      }
+    };
+    init();
+  }, []);
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {

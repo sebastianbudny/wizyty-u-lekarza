@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
+import { forgotPasswordSchema } from '../utils/ValidationSchemas';
 import UserService from '../services/UserService';
 
 const ForgotPassword = () => {
@@ -36,7 +37,7 @@ const ForgotPassword = () => {
     <Container maxWidth="sm">
       <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Typography component="h1" variant="h5" className="form-title">
-          Resetowanie hasła
+          Zapomniał*m hasła
         </Typography>
 
         {status.message && (
@@ -47,6 +48,7 @@ const ForgotPassword = () => {
 
         <Formik
           initialValues={{ email: '' }}
+          validationSchema={forgotPasswordSchema}
           onSubmit={handleSubmit}
         >
           {({ isSubmitting }) => (

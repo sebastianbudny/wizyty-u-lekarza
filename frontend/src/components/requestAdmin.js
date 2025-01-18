@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
+import { requestAdminSchema } from '../utils/ValidationSchemas';
 import UserService from '../services/UserService';
 
 const RequestAdmin = () => {
@@ -49,6 +50,7 @@ const RequestAdmin = () => {
 
         <Formik
           initialValues={{ username: '', email: '', reasonForAdmin: '' }}
+          validationSchema={requestAdminSchema}
           onSubmit={handleSubmit}
         >
           {({ isSubmitting }) => (
