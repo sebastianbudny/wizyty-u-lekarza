@@ -24,7 +24,6 @@ import DoctorsList from './components/registrar/doctors/DoctorsList';
 import AddDoctor from './components/registrar/doctors/AddDoctor';
 import ManageDoctors from './components/registrar/doctors/ManageDoctors';
 
-
 //Komponenty panelu administratora
 import AdminDashboard from './components/admin/AdminDashboard';
 import ManageRegistrars from './components/admin/ManageRegistrars';
@@ -37,14 +36,17 @@ import ManageAdmins from './components/superadmin/ManageAdmins';
 //Serwisy do komunikacji z API
 import UserService from './services/UserService';
 
-//Interceptory do obsługi błędów
+//Interceptory do obsługi błędów związanych z autoryzacją z wyjątkiem logowania
 axios.interceptors.response.use(
   response => response,
   error => {
-    if (error.response?.status === 401) {
+    if (error.config.url.includes('/users/login')) {
+      return Promise.reject(error);
+    } else if (error.response?.status === 401) {
       UserService.logout();
       window.location.href = '/login';
-    }
+      return Promise.reject(error);
+    } 
     return Promise.reject(error);
   }
 );
@@ -69,8 +71,6 @@ const AppContent = () => {
         <Route path="/doctors" element={<ProtectedRoute><DoctorsList /></ProtectedRoute>} />
         <Route path="/doctors/add" element={<ProtectedRoute><AddDoctor /></ProtectedRoute>} />
         <Route path="/doctors/manage" element={<ProtectedRoute><ManageDoctors /></ProtectedRoute>} />
-        
-        
 
         {/*Trasy dla administratora*/}
         <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
