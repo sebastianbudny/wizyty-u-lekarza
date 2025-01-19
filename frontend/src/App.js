@@ -5,6 +5,7 @@ import './App.css';
 
 //Komponenty układu
 import Navbar from './components/layout/Navbar';
+import Footer from './components/layout/Footer';
 
 //Chroniona trasa
 import ProtectedRoute from './components/ProtectedRoute';
@@ -85,6 +86,7 @@ const AppContent = () => {
         <Route path="/" element={ <Navigate to="/login" replace />} />
         <Route path="*" element={ <Navigate to="/login" replace />} />
       </Routes>
+      <Footer />
     </div>
   );
 };

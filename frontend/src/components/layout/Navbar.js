@@ -73,6 +73,7 @@ const Navbar = () => {
           variant="h6" 
           component="div"
           sx={{ flexGrow: 1, textAlign: 'center', fontWeight: 'bold' }}
+          className="navbar-title"
         >
           System zarządzania wizytami lekarskimi
         </Typography>

@@ -109,6 +109,7 @@ const ManageDoctors = () => {
                     <Button
                       variant="contained"
                       color="error"
+                      className = "delete-btn"
                       size="small"
                       onClick={() => handleDeleteClick(doctor._id)}
                     >

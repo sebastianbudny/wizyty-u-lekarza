@@ -133,6 +133,7 @@ const ManageVisits = () => {
                     <Button
                       variant="contained"
                       color="error"
+                      className = "delete-btn"
                       size="small"
                       onClick={() => handleDeleteClick(visit._id)}
                     >
