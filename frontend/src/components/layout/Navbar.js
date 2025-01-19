@@ -29,7 +29,6 @@ const Navbar = () => {
     { label: 'Zarządzanie administratorami', path: '/admins/manage' }
   ];
 
-
   const handleLogout = () => {
     UserService.logout();
     navigate('/login');
@@ -55,51 +54,57 @@ const Navbar = () => {
 
   return (
     <AppBar position="static">
-      <Toolbar>
+      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
         {/* Left side - user actions */}
-        {user && (
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button color="inherit" onClick={handleLogout}>
-              Wyloguj
-            </Button>
-            <Button color="inherit" onClick={handleDashboardClick}>
-              Pulpit
-            </Button>
-          </Box>
-        )}
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          {user && (
+            <>
+              <Button color="inherit" onClick={handleLogout}>
+                Wyloguj
+              </Button>
+              <Button color="inherit" onClick={handleDashboardClick}>
+                Pulpit
+              </Button>
+            </>
+          )}
+        </Box>
 
         {/* Center - title */}
         <Typography 
           variant="h6" 
           component="div"
-          sx={{ flexGrow: 1, textAlign: 'center', fontWeight: 'bold' }}
           className="navbar-title"
+          sx={{ 
+            position: 'absolute', 
+            left: '50%', 
+            transform: 'translateX(-50%)',
+            fontWeight: 'bold'
+          }}
         >
           System zarządzania wizytami lekarskimi
         </Typography>
 
-        {/* Right side - registrar menu */}
-        {user?.role === 'registrar' && (
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <DropdownMenu 
-              title="Lekarze" 
-              menuItems={doctorMenuItems} 
-              isActive={activeMenu === 'doctors'}
-              onActivate={() => setActiveMenu('doctors')}
-              onClose={() => setActiveMenu(null)}
-            />
-            <DropdownMenu 
-              title="Wizyty" 
-              menuItems={visitMenuItems} 
-              isActive={activeMenu === 'visits'}
-              onActivate={() => setActiveMenu('visits')}
-              onClose={() => setActiveMenu(null)}
-            />
-          </Box>
-        )}
-
-        {user?.role === 'admin' && (
-          <Box sx={{ display: 'flex', gap: 2 }}>
+        {/* Right side - role specific menus */}
+        <Box sx={{ display: 'flex', gap: 2, marginLeft: 'auto' }}>
+          {user?.role === 'registrar' && (
+            <>
+              <DropdownMenu 
+                title="Lekarze" 
+                menuItems={doctorMenuItems}
+                isActive={activeMenu === 'doctors'}
+                onActivate={() => setActiveMenu('doctors')}
+                onClose={() => setActiveMenu(null)}
+              />
+              <DropdownMenu 
+                title="Wizyty" 
+                menuItems={visitMenuItems}
+                isActive={activeMenu === 'visits'}
+                onActivate={() => setActiveMenu('visits')}
+                onClose={() => setActiveMenu(null)}
+              />
+            </>
+          )}
+          {user?.role === 'admin' && (
             <DropdownMenu 
               title="Rejestratorzy" 
               menuItems={adminMenuItems}
@@ -107,11 +112,8 @@ const Navbar = () => {
               onActivate={() => setActiveMenu('registrars')}
               onClose={() => setActiveMenu(null)}
             />
-          </Box>
-        )}
-
-        {user?.role === 'superadmin' && (
-          <Box sx={{ display: 'flex', gap: 2 }}>
+          )}
+          {user?.role === 'superadmin' && (
             <DropdownMenu 
               title="Administratorzy" 
               menuItems={superAdminMenuItems}
@@ -119,8 +121,8 @@ const Navbar = () => {
               onActivate={() => setActiveMenu('admins')}
               onClose={() => setActiveMenu(null)}
             />
-          </Box>
-        )}
+          )}
+        </Box>
       </Toolbar>
     </AppBar>
   );
