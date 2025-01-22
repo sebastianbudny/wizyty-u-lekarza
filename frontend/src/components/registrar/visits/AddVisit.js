@@ -68,7 +68,7 @@ const AddVisit = () => {
       <Container maxWidth="sm">
         <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Typography variant="h4" sx={{ mb: 4 }}>
-            Dodaj wizytę
+            Dodanie wizyty
           </Typography>
 
           {status.message && (

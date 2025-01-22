@@ -11,13 +11,13 @@ const Navbar = () => {
 
   const doctorMenuItems = [
     { label: 'Lista lekarzy', path: '/doctors' },
-    { label: 'Dodaj lekarza', path: '/doctors/add' },
-    { label: 'Zarządzaj lekarzami', path: '/doctors/manage' }
+    { label: 'Dodanie lekarza', path: '/doctors/add' },
+    { label: 'Zarządzanie lekarzami', path: '/doctors/manage' }
   ];
 
   const visitMenuItems = [
-    { label: 'Dodaj wizytę', path: '/visits/add' },
-    { label: 'Zarządzaj wizytami', path: '/visits/manage' }
+    { label: 'Dodanie wizyty', path: '/visits/add' },
+    { label: 'Zarządzanie wizytami', path: '/visits/manage' }
   ];
 
   const adminMenuItems = [

@@ -47,7 +47,7 @@ const AddDoctor = () => {
     <Container maxWidth="sm">
       <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Typography variant="h4" sx={{ mb: 4 }}>
-          Dodaj lekarza
+          Dodanie lekarza
         </Typography>
 
         {status.message && (

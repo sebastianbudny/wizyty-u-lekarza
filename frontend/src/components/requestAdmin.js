@@ -53,7 +53,7 @@ const RequestAdmin = () => {
           validationSchema={requestAdminSchema}
           onSubmit={handleSubmit}
         >
-          {({ isSubmitting }) => (
+          {({ errors, touched, isSubmitting }) => (
             <Form style={{ width: '100%', marginTop: '1rem' }}>
               <Field
                 name="username"
@@ -63,6 +63,8 @@ const RequestAdmin = () => {
                 fullWidth
                 label="Nazwa użytkownika"
                 autoFocus
+                error={touched.username && Boolean(errors.username)}
+                helperText={touched.username && errors.username}
               />
 
               <Field
@@ -73,6 +75,8 @@ const RequestAdmin = () => {
                 fullWidth
                 label="Email"
                 type="email"
+                error={touched.email && Boolean(errors.email)}
+                helperText={touched.email && errors.email}
               />
 
               <Field
@@ -84,6 +88,8 @@ const RequestAdmin = () => {
                 label="Powód ubiegania się o uprawnienia administratora"
                 multiline
                 rows={4}
+                error={touched.reasonForAdmin && Boolean(errors.reasonForAdmin)}
+                helperText={touched.reasonForAdmin && errors.reasonForAdmin}
               />
 
               <Button
